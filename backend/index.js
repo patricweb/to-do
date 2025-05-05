@@ -4,7 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import projectRoutes from './routes/projects.js';
 import taskRoutes from './routes/tasks.js';
-import bot from './config/telegram.js';
+import bot from './config/telegram.js'; 
 
 dotenv.config();
 
@@ -12,7 +12,7 @@ const app = express();
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'https://your-telegram-mini-app-url.com', 'https://*.telegram.org'],
+  origin: ['http://localhost:5173', 'https://to-do-1-ob6b.onrender.com', 'https://*.telegram.org'],
   credentials: true
 }));
 app.use(express.json());
@@ -38,9 +38,25 @@ app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
 
-// Start Telegram bot
-bot.launch();
+try {
+  bot.launch({
+    allowedUpdates: ['message', 'callback_query', 'web_app_data'],
+    dropPendingUpdates: true
+  }).then(() => {
+    console.log('Telegram bot started successfully');
+  }).catch(err => {
+    console.error('Error starting Telegram bot:', err);
+  });
+} catch (err) {
+  console.error('Error in bot launch:', err);
+}
 
-// Enable graceful stop
-process.once('SIGINT', () => bot.stop('SIGINT'));
-process.once('SIGTERM', () => bot.stop('SIGTERM'));
+process.once('SIGINT', () => {
+  console.log('Stopping bot...');
+  bot.stop('SIGINT');
+});
+
+process.once('SIGTERM', () => {
+  console.log('Stopping bot...');
+  bot.stop('SIGTERM');
+});

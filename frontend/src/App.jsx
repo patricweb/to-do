@@ -1,39 +1,34 @@
+import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { useState, useEffect } from 'react';
 import { WebApp } from '@twa-dev/sdk';
-import ProjectPage from './components/ProjectPage';
-import TasksPage from './components/TasksPage';
-import SharedProjectPage from './components/SharedProjectPage';
+import ProjectList from './components/ProjectList';
+import ProjectDetail from './components/ProjectDetail';
 import CreateProject from './components/CreateProject';
+import CreateTask from './components/CreateTask';
 
 function App() {
-  const [user, setUser] = useState(null);
-  const [isLoading, setIsLoading] = useState(true);
-
-  useEffect(() => {
-    // Initialize user from Telegram WebApp
-    if (window.Telegram && window.Telegram.WebApp) {
-      const initData = window.Telegram.WebApp.initDataUnsafe;
-      if (initData && initData.user) {
-        setUser(initData.user);
-      }
-    }
-    setIsLoading(false);
+  React.useEffect(() => {
+    WebApp.ready();
+    WebApp.expand();
   }, []);
-
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
 
   return (
     <Router>
-      <div className="app-container">
-        <Routes>
-          <Route path="/" element={<ProjectPage user={user} />} />
-          <Route path="/create" element={<CreateProject />} />
-          <Route path="/projects/:projectId/tasks" element={<TasksPage user={user} />} />
-          <Route path="/shared/:token" element={<SharedProjectPage user={user} />} />
-        </Routes>
+      <div className="tg-mini-app">
+        <div className="container mx-auto">
+          <header className="tg-mini-app-header">
+            <h1 className="tg-mini-app-title">To-Do List</h1>
+          </header>
+          
+          <main className="animate-fade-in">
+            <Routes>
+              <Route path="/" element={<ProjectList />} />
+              <Route path="/project/:id" element={<ProjectDetail />} />
+              <Route path="/create-project" element={<CreateProject />} />
+              <Route path="/project/:id/create-task" element={<CreateTask />} />
+            </Routes>
+          </main>
+        </div>
       </div>
     </Router>
   );

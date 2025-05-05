@@ -21,6 +21,10 @@ const projectSchema = new mongoose.Schema({
         type: String,
         unique: true
     },
+    shareLink: {
+        type: String,
+        unique: true
+    },
     createdAt: {
         type: Date,
         default: Date.now

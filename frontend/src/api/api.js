@@ -1,4 +1,4 @@
-const API_BASE = "http://localhost:3000/api"; 
+const API_BASE = "https://to-do-1-ob6b.onrender.com/api"; 
 const initData = window.Telegram?.WebApp?.initData || "";
 
 export async function fetchProjects() {
