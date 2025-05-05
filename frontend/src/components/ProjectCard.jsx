@@ -1,9 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { WebApp } from '@twa-dev/sdk';
 
 const ProjectCard = ({ project }) => {
   return (
-    <div className="bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300">
+    <div className="card">
       <div className="p-6">
         <div className="flex items-center justify-between mb-4">
           <h3 className="text-xl font-semibold text-gray-800">{project.title}</h3>
@@ -23,7 +24,7 @@ const ProjectCard = ({ project }) => {
           
           <Link 
             to={`/project/${project._id}`}
-            className="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-300"
+            className="btn-primary inline-flex items-center"
           >
             Открыть
             <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">

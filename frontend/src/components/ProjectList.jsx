@@ -11,7 +11,7 @@ const ProjectList = () => {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const response = await fetch('/api/projects', {
+        const response = await fetch('https://to-do-1-ob6b.onrender.com/api/projects', {
           headers: {
             'Authorization': `Bearer ${WebApp.initData}`,
           },
