@@ -1,7 +1,0 @@
-{
-  "dependencies": {
-    "eslint": "^9.26.0",
-    "glob": "^11.0.2",
-    "rimraf": "^6.0.1"
-  }
-}
