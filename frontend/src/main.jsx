@@ -1,25 +1,17 @@
-import React from "react";
-import ReactDOM from "react-dom/client";
-import App from "./App.jsx";
-import "./index.css";
+import React from 'react';
+import ReactDOM from 'react-dom/client';
+import App from './App.jsx';
+import './index.css';
 
-// Initialize Telegram WebApp
 if (window.Telegram && window.Telegram.WebApp) {
-  // Set the app background color
-  document.body.style.backgroundColor = window.Telegram.WebApp.backgroundColor;
-  document.body.style.color = window.Telegram.WebApp.textColor;
-
-  // Expand the app to full height
-  window.Telegram.WebApp.expand();
-
-  // Enable the main button
-  window.Telegram.WebApp.MainButton.show();
-
-  // Set the app ready
+  console.log('Telegram Web App SDK loaded:', window.Telegram.WebApp);
   window.Telegram.WebApp.ready();
+  window.Telegram.WebApp.expand();
+} else {
+  console.error('Telegram Web App SDK not loaded');
 }
 
-ReactDOM.createRoot(document.getElementById("root")).render(
+ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <App />
   </React.StrictMode>

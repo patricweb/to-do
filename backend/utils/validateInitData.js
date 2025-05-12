@@ -1,20 +1,34 @@
-import crypto from "crypto"
+import crypto from 'crypto';
 
 export function validateInitData(initData, botToken) {
-    const params = new URLSearchParams(initData);
-    const hash = params.get("hash");
-    params.delete("hash");
+  try {
+    const params = Object.fromEntries(new URLSearchParams(initData));
+    const hash = params.hash;
+    delete params.hash;
 
-    const sortedParams = [...params.entries()].sort(([a], [b]) => a.localeCompare(b));
-    const dataCheckString = sortedParams.map(([key, value]) => `${key}=${value}`).join("\n");
+    const dataCheckString = Object.keys(params)
+      .filter(key => key !== 'hash')
+      .map(key => `${key}=${params[key]}`)
+      .sort()
+      .join('\n');
 
-    const secretKey = crypto.createHash("sha256").update(botToken).digest();
-    const hmac = crypto.createHmac("sha256", secretKey).update(dataCheckString).digest("hex");
+    const secret = crypto
+      .createHmac('sha256', 'WebAppData')
+      .update(botToken)
+      .digest();
 
-    if (hmac !== hash) {
-        return false;
+    const computedHash = crypto
+      .createHmac('sha256', secret)
+      .update(dataCheckString)
+      .digest('hex');
+
+    if (computedHash !== hash) {
+      return false;
     }
 
-    const userParam = params.get("user");
-    return JSON.parse(userParam);
+    return JSON.parse(params.user);
+  } catch (error) {
+    console.error('Error validating initData:', error);
+    return false;
+  }
 }

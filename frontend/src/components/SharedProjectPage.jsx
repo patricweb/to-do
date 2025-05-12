@@ -1,4 +1,4 @@
-import { useParams } from 'react-router-dom';
+import { useParams } from 'react-router';
 import { useEffect, useState } from 'react';
 import { BackButton } from '@vkruglikov/react-telegram-web-app';
 import { showAlert } from '../utils/telegram';

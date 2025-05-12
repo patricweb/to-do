@@ -1,6 +1,4 @@
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+@tailwindcss;
 
 @layer components {
   .input-field {
@@ -144,7 +142,7 @@ code {
   .container {
     padding: 0.5rem;
   }
-  
+
   .tg-mini-app {
     padding: 0.5rem;
   }
