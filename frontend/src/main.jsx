@@ -37,7 +37,6 @@ loadTelegramSDK()
   })
   .catch(err => {
     console.error('Error loading Telegram Web App SDK:', err);
-    // Показать сообщение об ошибке в интерфейсе
     ReactDOM.createRoot(document.getElementById('root')).render(
       <div style={{ padding: '20px', color: 'red' }}>
         Error: Telegram Web App is not available. Please open this app in Telegram.
