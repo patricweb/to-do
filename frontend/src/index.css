@@ -1,4 +1,6 @@
-@tailwindcss;
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 @layer components {
   .input-field {
@@ -6,7 +8,8 @@
   }
 
   .btn-primary {
-    @apply px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50;
+    @apply px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 flex items-center justify-center;
+    z-index: 10; /* Гарантируем, что кнопка не скрыта */
   }
 
   .btn-secondary {
@@ -65,11 +68,6 @@ code {
   padding: 1rem;
 }
 
-.card {
-  @apply bg-white rounded-xl shadow-lg overflow-hidden hover:shadow-xl transition-shadow duration-300;
-}
-
-/* Telegram Mini App specific styles */
 .tg-mini-app {
   min-height: 100vh;
   padding: 1rem;
@@ -90,7 +88,6 @@ code {
   color: var(--tg-theme-text-color);
 }
 
-/* Telegram Mini App specific styles */
 .tg-mini-app-button {
   background-color: var(--tg-theme-button-color);
   color: var(--tg-theme-button-text-color);
@@ -137,7 +134,6 @@ code {
   opacity: 0.8;
 }
 
-/* Responsive design */
 @media (max-width: 640px) {
   .container {
     padding: 0.5rem;

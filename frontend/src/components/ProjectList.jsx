@@ -9,20 +9,25 @@ const ProjectList = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    if (!window.Telegram || !window.Telegram.WebApp.initData) {
+    console.log('ProjectList: Checking Telegram Web App...');
+    if (!window.Telegram || !window.Telegram.WebApp?.initData) {
+      console.error('ProjectList: Telegram Web App not initialized');
       setError('Please open this app in Telegram');
       setLoading(false);
       return;
     }
 
+    console.log('ProjectList: initData present:', window.Telegram.WebApp.initData);
+
     const getProjects = async () => {
       try {
+        console.log('ProjectList: Fetching projects...');
         const data = await fetchProjects();
-        console.log('Fetched projects:', data);
+        console.log('ProjectList: Projects fetched:', data);
         setProjects(data);
       } catch (err) {
-        console.error('Error in ProjectList:', err);
-        setError(err.message);
+        console.error('ProjectList: Error fetching projects:', err);
+        setError(err.message || 'Failed to load projects');
       } finally {
         setLoading(false);
       }
@@ -30,22 +35,6 @@ const ProjectList = () => {
 
     getProjects();
   }, []);
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="bg-red-50 p-4 rounded-lg">
-        <p className="text-red-600">Error: {error}</p>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -59,7 +48,15 @@ const ProjectList = () => {
         </Link>
       </div>
 
-      {projects.length === 0 ? (
+      {loading ? (
+        <div className="flex items-center justify-center h-64">
+          <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
+        </div>
+      ) : error ? (
+        <div className="bg-red-50 p-4 rounded-lg">
+          <p className="text-red-600">Error: {error}</p>
+        </div>
+      ) : projects.length === 0 ? (
         <div className="text-center py-12">
           <svg
             className="mx-auto h-12 w-12 text-gray-400"
