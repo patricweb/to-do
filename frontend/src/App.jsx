@@ -1,5 +1,5 @@
 import React from 'react';
-import { HashRouter as Router, Routes, Route } from 'react-router';
+import { HashRouter as Router, Routes, Route } from 'react-router-dom';
 import { WebApp } from '@twa-dev/sdk';
 import ProjectList from './components/ProjectList';
 import ProjectDetail from './components/ProjectDetail';

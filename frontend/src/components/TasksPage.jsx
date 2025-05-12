@@ -1,4 +1,4 @@
-import { useParams } from 'react-router';
+import { useParams } from 'react-router-dom';
 import TaskManager from './TaskManager';
 import { BackButton } from '@vkruglikov/react-telegram-web-app';
 
