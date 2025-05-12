@@ -7,29 +7,29 @@ const ProjectList = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
+  const [debugInfo, setDebugInfo] = useState('');
 
   useEffect(() => {
-    console.log('ProjectList: Initializing...');
+    setDebugInfo('Initializing...\n');
     if (!window.Telegram || !window.Telegram.WebApp?.initData) {
-      console.error('ProjectList: Telegram Web App not initialized');
+      setDebugInfo(prev => prev + 'Error: Telegram Web App not initialized\n');
       setError('Please open this app in Telegram');
       setLoading(false);
       return;
     }
 
-    console.log('ProjectList: initData:', window.Telegram.WebApp.initData);
+    setDebugInfo(prev => prev + `initData: ${window.Telegram.WebApp.initData}\n`);
 
     const getProjects = async () => {
       try {
-        console.log('ProjectList: Fetching projects...');
+        setDebugInfo(prev => prev + 'Fetching projects...\n');
         const data = await fetchProjects();
-        console.log('ProjectList: Projects fetched:', data);
+        setDebugInfo(prev => prev + `Projects fetched: ${JSON.stringify(data)}\n`);
         setProjects(data);
       } catch (err) {
-        console.error('ProjectList: Error fetching projects:', err);
+        setDebugInfo(prev => prev + `Error: ${err.message}\n`);
         setError(err.message || 'Failed to load projects');
       } finally {
-        console.log('ProjectList: Loading complete');
         setLoading(false);
       }
     };
@@ -39,13 +39,18 @@ const ProjectList = () => {
 
   return (
     <div className="space-y-6">
-      {/* Кнопка "Новый проект" всегда отображается */}
+      {/* Отладочная информация */}
+      <pre style={{ background: '#f0f0f0', padding: '10px', fontSize: '12px', whiteSpace: 'pre-wrap' }}>
+        {debugInfo}
+      </pre>
+
+      {/* Кнопка "Новый проект" */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">Мои проекты</h2>
         <Link
           to="/create-project"
           className="btn-primary flex items-center space-x-2"
-          style={{ backgroundColor: '#2481cc', color: 'white' }}
+          style={{ backgroundColor: '#2481cc', color: 'white', padding: '10px 20px' }}
         >
           <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
@@ -54,7 +59,6 @@ const ProjectList = () => {
         </Link>
       </div>
 
-      {/* Состояния загрузки, ошибки или списка проектов */}
       {loading ? (
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
