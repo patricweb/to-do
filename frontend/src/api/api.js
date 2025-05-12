@@ -1,7 +1,14 @@
 const API_BASE = 'https://to-do-1-ob6b.onrender.com/api';
 const initData = window.Telegram?.WebApp?.initData || '';
 
+const checkInitData = () => {
+  if (!initData) {
+    throw new Error('Telegram Web App is not initialized');
+  }
+};
+
 export async function fetchProjects() {
+  checkInitData();
   try {
     const res = await fetch(`${API_BASE}/projects`, {
       method: 'GET',
@@ -19,6 +26,7 @@ export async function fetchProjects() {
 }
 
 export async function createProject(title, description = '') {
+  checkInitData();
   try {
     const res = await fetch(`${API_BASE}/projects`, {
       method: 'POST',
@@ -37,6 +45,7 @@ export async function createProject(title, description = '') {
 }
 
 export async function fetchTasks(projectId) {
+  checkInitData();
   try {
     const res = await fetch(`${API_BASE}/tasks/projects/${projectId}/tasks`, {
       method: 'GET',
@@ -54,6 +63,7 @@ export async function fetchTasks(projectId) {
 }
 
 export async function createTask(projectId, title, priority = 'medium', dueDate = null) {
+  checkInitData();
   try {
     const res = await fetch(`${API_BASE}/tasks/projects/${projectId}/tasks`, {
       method: 'POST',
@@ -72,6 +82,7 @@ export async function createTask(projectId, title, priority = 'medium', dueDate 
 }
 
 export async function generateShareToken(projectId) {
+  checkInitData();
   try {
     const res = await fetch(`${API_BASE}/projects/share/${projectId}`, {
       method: 'POST',
@@ -89,6 +100,7 @@ export async function generateShareToken(projectId) {
 }
 
 export async function getProjectByToken(token) {
+  checkInitData();
   try {
     const res = await fetch(`${API_BASE}/projects/shared/${token}`, {
       method: 'GET',
@@ -106,6 +118,7 @@ export async function getProjectByToken(token) {
 }
 
 export async function toggleTaskCompletion(taskId) {
+  checkInitData();
   try {
     const res = await fetch(`${API_BASE}/tasks/${taskId}`, {
       method: 'PATCH',

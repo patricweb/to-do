@@ -1,21 +1,11 @@
 import React from 'react';
 import { HashRouter as Router, Routes, Route } from 'react-router-dom';
-import { WebApp } from '@twa-dev/sdk';
 import ProjectList from './components/ProjectList';
 import ProjectDetail from './components/ProjectDetail';
 import CreateProject from './components/CreateProject';
 import CreateTask from './components/CreateTask';
 
 function App() {
-  React.useEffect(() => {
-    if (WebApp) {
-      console.log('Telegram Web App initData:', WebApp.initData);
-      WebApp.ready();
-    } else {
-      console.error('Telegram Web App SDK not loaded');
-    }
-  }, []);
-
   return (
     <Router>
       <div className="tg-mini-app">

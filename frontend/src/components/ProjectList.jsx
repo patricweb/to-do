@@ -9,6 +9,12 @@ const ProjectList = () => {
   const [error, setError] = useState(null);
 
   useEffect(() => {
+    if (!window.Telegram || !window.Telegram.WebApp.initData) {
+      setError('Please open this app in Telegram');
+      setLoading(false);
+      return;
+    }
+
     const getProjects = async () => {
       try {
         const data = await fetchProjects();
