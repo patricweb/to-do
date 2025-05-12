@@ -7,9 +7,14 @@ const checkInitData = () => {
   }
 };
 
+// Задержка для ожидания "пробуждения" сервера
+const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+
 export async function fetchProjects() {
   checkInitData();
   try {
+    console.log('API: Sending fetchProjects request...');
+    await delay(1000); // Задержка 1 сек для Render
     const res = await fetch(`${API_BASE}/projects`, {
       method: 'GET',
       headers: {
@@ -17,10 +22,14 @@ export async function fetchProjects() {
         'x-telegram-init-data': initData,
       },
     });
-    if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-    return res.json();
+    if (!res.ok) {
+      throw new Error(`HTTP error! Status: ${res.status}`);
+    }
+    const data = await res.json();
+    console.log('API: fetchProjects response:', data);
+    return data;
   } catch (error) {
-    console.error('Error fetching projects:', error);
+    console.error('API: Error fetching projects:', error);
     throw error;
   }
 }
@@ -28,6 +37,8 @@ export async function fetchProjects() {
 export async function createProject(title, description = '') {
   checkInitData();
   try {
+    console.log('API: Sending createProject request...');
+    await delay(1000);
     const res = await fetch(`${API_BASE}/projects`, {
       method: 'POST',
       headers: {
@@ -37,9 +48,11 @@ export async function createProject(title, description = '') {
       body: JSON.stringify({ title, description }),
     });
     if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-    return res.json();
+    const data = await res.json();
+    console.log('API: createProject response:', data);
+    return data;
   } catch (error) {
-    console.error('Error creating project:', error);
+    console.error('API: Error creating project:', error);
     throw error;
   }
 }
@@ -47,6 +60,8 @@ export async function createProject(title, description = '') {
 export async function fetchTasks(projectId) {
   checkInitData();
   try {
+    console.log('API: Sending fetchTasks request...');
+    await delay(1000);
     const res = await fetch(`${API_BASE}/tasks/projects/${projectId}/tasks`, {
       method: 'GET',
       headers: {
@@ -55,9 +70,11 @@ export async function fetchTasks(projectId) {
       },
     });
     if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-    return res.json();
+    const data = await res.json();
+    console.log('API: fetchTasks response:', data);
+    return data;
   } catch (error) {
-    console.error('Error fetching tasks:', error);
+    console.error('API: Error fetching tasks:', error);
     throw error;
   }
 }
@@ -65,6 +82,8 @@ export async function fetchTasks(projectId) {
 export async function createTask(projectId, title, priority = 'medium', dueDate = null) {
   checkInitData();
   try {
+    console.log('API: Sending createTask request...');
+    await delay(1000);
     const res = await fetch(`${API_BASE}/tasks/projects/${projectId}/tasks`, {
       method: 'POST',
       headers: {
@@ -74,9 +93,11 @@ export async function createTask(projectId, title, priority = 'medium', dueDate 
       body: JSON.stringify({ title, priority, dueDate }),
     });
     if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-    return res.json();
+    const data = await res.json();
+    console.log('API: createTask response:', data);
+    return data;
   } catch (error) {
-    console.error('Error creating task:', error);
+    console.error('API: Error creating task:', error);
     throw error;
   }
 }
@@ -84,6 +105,8 @@ export async function createTask(projectId, title, priority = 'medium', dueDate 
 export async function generateShareToken(projectId) {
   checkInitData();
   try {
+    console.log('API: Sending generateShareToken request...');
+    await delay(1000);
     const res = await fetch(`${API_BASE}/projects/share/${projectId}`, {
       method: 'POST',
       headers: {
@@ -92,9 +115,11 @@ export async function generateShareToken(projectId) {
       },
     });
     if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-    return res.json();
+    const data = await res.json();
+    console.log('API: generateShareToken response:', data);
+    return data;
   } catch (error) {
-    console.error('Error generating share token:', error);
+    console.error('API: Error generating share token:', error);
     throw error;
   }
 }
@@ -102,6 +127,8 @@ export async function generateShareToken(projectId) {
 export async function getProjectByToken(token) {
   checkInitData();
   try {
+    console.log('API: Sending getProjectByToken request...');
+    await delay(1000);
     const res = await fetch(`${API_BASE}/projects/shared/${token}`, {
       method: 'GET',
       headers: {
@@ -110,9 +137,11 @@ export async function getProjectByToken(token) {
       },
     });
     if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-    return res.json();
+    const data = await res.json();
+    console.log('API: getProjectByToken response:', data);
+    return data;
   } catch (error) {
-    console.error('Error fetching project by token:', error);
+    console.error('API: Error fetching project by token:', error);
     throw error;
   }
 }
@@ -120,6 +149,8 @@ export async function getProjectByToken(token) {
 export async function toggleTaskCompletion(taskId) {
   checkInitData();
   try {
+    console.log('API: Sending toggleTaskCompletion request...');
+    await delay(1000);
     const res = await fetch(`${API_BASE}/tasks/${taskId}`, {
       method: 'PATCH',
       headers: {
@@ -129,9 +160,11 @@ export async function toggleTaskCompletion(taskId) {
       body: JSON.stringify({ completed: true }),
     });
     if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-    return res.json();
+    const data = await res.json();
+    console.log('API: toggleTaskCompletion response:', data);
+    return data;
   } catch (error) {
-    console.error('Error toggling task completion:', error);
+    console.error('API: Error toggling task completion:', error);
     throw error;
   }
 }

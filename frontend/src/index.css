@@ -9,7 +9,11 @@
 
   .btn-primary {
     @apply px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 disabled:opacity-50 flex items-center justify-center;
-    z-index: 10; /* Гарантируем, что кнопка не скрыта */
+    z-index: 100; /* Высокий z-index для видимости */
+    background-color: var(--tg-theme-button-color, #2481cc); /* Запасной цвет для Telegram */
+    color: var(--tg-theme-button-text-color, white);
+    min-width: 120px; /* Минимальная ширина для кнопки */
+    font-size: 1rem;
   }
 
   .btn-secondary {
