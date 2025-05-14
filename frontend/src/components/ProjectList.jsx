@@ -13,16 +13,11 @@ const ProjectList = () => {
     console.log('ProjectList: Initializing...');
     setDebugInfo(prev => prev + 'Checking Telegram Web App...\n');
 
-    if (!window.Telegram || !window.Telegram.WebApp) {
-      console.warn('ProjectList: Telegram Web App not initialized (likely browser)');
-      setDebugInfo(prev => prev + 'Warning: Telegram Web App not initialized (likely browser)\n');
-      // Для браузера продолжаем без initData
-    } else {
-      const initData = window.Telegram.WebApp.initData;
-      console.log('ProjectList: initData:', initData);
-      setDebugInfo(prev => prev + `initData: ${initData || 'empty'}\n`);
-      setDebugInfo(prev => prev + `SDK version: ${window.Telegram.WebApp.version || 'unknown'}\n`);
-    }
+    const WebApp = window.Telegram?.WebApp;
+    const initData = WebApp?.initData || '';
+    console.log('ProjectList: initData:', initData);
+    setDebugInfo(prev => prev + `initData: ${initData || 'empty'}\n`);
+    setDebugInfo(prev => prev + `SDK version: ${WebApp?.version || 'unknown'}\n`);
 
     const getProjects = async () => {
       try {
@@ -48,7 +43,6 @@ const ProjectList = () => {
 
   return (
     <div className="space-y-6">
-      {/* Отладочная информация */}
       <pre
         style={{
           background: '#f0f0f0',
@@ -62,7 +56,6 @@ const ProjectList = () => {
         {debugInfo}
       </pre>
 
-      {/* Кнопка "Новый проект" */}
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold text-gray-800">Мои проекты</h2>
         <Link
@@ -73,7 +66,6 @@ const ProjectList = () => {
             color: 'white',
             padding: '12px 24px',
             borderRadius: '8px',
-            zIndex: 1000,
             fontSize: '16px',
             fontWeight: 'bold',
             boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
@@ -86,7 +78,6 @@ const ProjectList = () => {
         </Link>
       </div>
 
-      {/* Состояния загрузки, ошибки или списка проектов */}
       {loading && (
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>

@@ -9,20 +9,17 @@ const router = express.Router();
 // Get all projects for the current user
 router.get('/', telegramAuthMiddleware, async (req, res) => {
   try {
-    console.log('User ID:', req.telegramUser.id);
-    console.log('Finding projects...');
-    
+    console.log('GET /projects: User ID:', req.telegramUser.id);
     const projects = await Project.find({
       $or: [
         { creator: req.telegramUser.id },
         { members: req.telegramUser.id }
       ]
     }).populate('creator', 'username firstName lastName');
-    
-    console.log('Found projects:', projects);
+    console.log('GET /projects: Found projects:', projects);
     res.json(projects);
   } catch (error) {
-    console.error('Error in GET /projects:', error);
+    console.error('GET /projects: Error:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -30,7 +27,8 @@ router.get('/', telegramAuthMiddleware, async (req, res) => {
 // Create a new project
 router.post('/', telegramAuthMiddleware, async (req, res) => {
   try {
-    console.log('Creating project with data:', req.body);
+    console.log('POST /projects: Request body:', req.body);
+    console.log('POST /projects: User:', req.telegramUser);
     const project = new Project({
       title: req.body.title,
       description: req.body.description,
@@ -38,18 +36,18 @@ router.post('/', telegramAuthMiddleware, async (req, res) => {
       shareToken: nanoid(10)
     });
     await project.save();
-    console.log('Project created:', project);
+    console.log('POST /projects: Project created:', project);
     res.status(201).json(project);
   } catch (error) {
-    console.error('Error in POST /projects:', error);
-    res.status(400).json({ error: error.message });
+    console.error('POST /projects: Error:', error);
+    res.status(400).json({ error: `Failed to create project: ${error.message}` });
   }
 });
 
 // Get a specific project
 router.get('/:id', telegramAuthMiddleware, async (req, res) => {
   try {
-    console.log('Getting project with ID:', req.params.id);
+    console.log('GET /projects/:id: Project ID:', req.params.id);
     const project = await Project.findOne({
       _id: req.params.id,
       $or: [
@@ -59,14 +57,14 @@ router.get('/:id', telegramAuthMiddleware, async (req, res) => {
     }).populate('creator', 'username firstName lastName');
     
     if (!project) {
-      console.log('Project not found');
+      console.log('GET /projects/:id: Project not found');
       return res.status(404).json({ error: 'Project not found' });
     }
     
-    console.log('Found project:', project);
+    console.log('GET /projects/:id: Found project:', project);
     res.json(project);
   } catch (error) {
-    console.error('Error in GET /projects/:id:', error);
+    console.error('GET /projects/:id: Error:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -74,23 +72,23 @@ router.get('/:id', telegramAuthMiddleware, async (req, res) => {
 // Update a project
 router.patch('/:id', telegramAuthMiddleware, async (req, res) => {
   try {
-    console.log('Updating project with ID:', req.params.id);
+    console.log('PATCH /projects/:id: Project ID:', req.params.id);
     const project = await Project.findOne({
       _id: req.params.id,
       creator: req.telegramUser.id
     });
     
     if (!project) {
-      console.log('Project not found');
+      console.log('PATCH /projects/:id: Project not found');
       return res.status(404).json({ error: 'Project not found' });
     }
     
     Object.assign(project, req.body);
     await project.save();
-    console.log('Project updated:', project);
+    console.log('PATCH /projects/:id: Project updated:', project);
     res.json(project);
   } catch (error) {
-    console.error('Error in PATCH /projects/:id:', error);
+    console.error('PATCH /projects/:id: Error:', error);
     res.status(400).json({ error: error.message });
   }
 });
@@ -98,24 +96,23 @@ router.patch('/:id', telegramAuthMiddleware, async (req, res) => {
 // Delete a project
 router.delete('/:id', telegramAuthMiddleware, async (req, res) => {
   try {
-    console.log('Deleting project with ID:', req.params.id);
+    console.log('DELETE /projects/:id: Project ID:', req.params.id);
     const project = await Project.findOne({
       _id: req.params.id,
       creator: req.telegramUser.id
     });
     
     if (!project) {
-      console.log('Project not found');
+      console.log('DELETE /projects/:id: Project not found');
       return res.status(404).json({ error: 'Project not found' });
     }
     
-    // Delete all tasks associated with the project
     await Task.deleteMany({ project: project._id });
-    await project.remove();
-    console.log('Project deleted successfully');
+    await project.deleteOne();
+    console.log('DELETE /projects/:id: Project deleted successfully');
     res.json({ message: 'Project deleted successfully' });
   } catch (error) {
-    console.error('Error in DELETE /projects/:id:', error);
+    console.error('DELETE /projects/:id: Error:', error);
     res.status(500).json({ error: error.message });
   }
 });
@@ -123,22 +120,26 @@ router.delete('/:id', telegramAuthMiddleware, async (req, res) => {
 // Get project by share token
 router.get('/shared/:token', telegramAuthMiddleware, async (req, res) => {
   try {
+    console.log('GET /shared/:token: Token:', req.params.token);
     const project = await Project.findOne({ shareToken: req.params.token });
     
     if (!project) {
+      console.log('GET /shared/:token: Project not found');
       return res.status(404).json({ error: 'Project not found' });
     }
     
-    // Add user to project members if not already a member
     if (!project.members.includes(req.telegramUser.id)) {
       project.members.push(req.telegramUser.id);
       await project.save();
+      console.log('GET /shared/:token: User added to members');
     }
     
+    console.log('GET /shared/:token: Found project:', project);
     res.json(project);
   } catch (error) {
+    console.error('GET /shared/:token: Error:', error);
     res.status(500).json({ error: error.message });
   }
 });
 
-export default router; 
+export default router;

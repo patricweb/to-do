@@ -14,14 +14,22 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Root route to avoid "Cannot GET /"
+// Root route
 app.get('/', (req, res) => {
   res.status(200).json({ message: 'Backend is running' });
 });
 
 // Connect to MongoDB
+if (!process.env.MONGODB_URI) {
+  console.error('MONGODB_URI is not defined in .env');
+  process.exit(1);
+}
+
 mongoose
-  .connect(process.env.MONGODB_URI)
+  .connect(process.env.MONGODB_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true
+  })
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => {
     console.error('MongoDB connection error:', err);
@@ -32,10 +40,14 @@ mongoose
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
 
+// Remove unused routes
+// app.use('/api/projects', require('./routes/projectRoutes'));
+// app.use('/api/tasks', require('./routes/taskRoutes'));
+
 // Error handling middleware
 app.use((err, req, res, next) => {
-  console.error('Error:', err.stack);
-  res.status(500).json({ error: 'Something went wrong!' });
+  console.error('Global error:', err);
+  res.status(500).json({ error: `Internal server error: ${err.message}` });
 });
 
 // Start server
@@ -63,7 +75,7 @@ if (process.env.BOT_TOKEN) {
       console.error('Error in bot launch:', err);
       process.exit(1);
     }
-  }, 1000); // Задержка 1 сек для стабильности
+  }, 1000);
 } else {
   console.error('BOT_TOKEN is not defined');
   process.exit(1);
@@ -72,11 +84,17 @@ if (process.env.BOT_TOKEN) {
 process.once('SIGINT', () => {
   console.log('Stopping bot...');
   bot.stop('SIGINT');
-  process.exit();
+  mongoose.connection.close(() => {
+    console.log('MongoDB disconnected');
+    process.exit(0);
+  });
 });
 
 process.once('SIGTERM', () => {
   console.log('Stopping bot...');
   bot.stop('SIGTERM');
-  process.exit();
+  mongoose.connection.close(() => {
+    console.log('MongoDB disconnected');
+    process.exit(0);
+  });
 });
