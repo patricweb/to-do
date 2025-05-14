@@ -24,8 +24,9 @@ const ProjectDetail = () => {
         });
 
         if (!projectResponse.ok) {
-          const errorData = await projectResponse.json();
-          throw new Error(errorData.error || 'Failed to fetch project');
+          const text = await projectResponse.text();
+          console.log('ProjectDetail: Project response text:', text);
+          throw new Error(`Failed to fetch project: ${projectResponse.status} ${text}`);
         }
 
         const projectData = await projectResponse.json();
@@ -40,8 +41,9 @@ const ProjectDetail = () => {
         });
 
         if (!tasksResponse.ok) {
-          const errorData = await tasksResponse.json();
-          throw new Error(errorData.error || 'Failed to fetch tasks');
+          const text = await tasksResponse.text();
+          console.log('ProjectDetail: Tasks response text:', text);
+          throw new Error(`Failed to fetch tasks: ${tasksResponse.status} ${text}`);
         }
 
         const tasksData = await tasksResponse.json();
@@ -74,8 +76,9 @@ const ProjectDetail = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to update task');
+        const text = await response.text();
+        console.log('ProjectDetail: Task toggle response text:', text);
+        throw new Error(`Failed to update task: ${response.status} ${text}`);
       }
 
       const updatedTask = await response.json();
@@ -102,8 +105,9 @@ const ProjectDetail = () => {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to delete task');
+        const text = await response.text();
+        console.log('ProjectDetail: Task delete response text:', text);
+        throw new Error(`Failed to delete task: ${response.status} ${text}`);
       }
 
       setTasks(tasks.filter(task => task._id !== taskId));

@@ -4,7 +4,6 @@ const validateTelegramWebAppData = (telegramInitData, botToken) => {
   console.log('validateTelegramWebAppData: Starting validation...');
   console.log('validateTelegramWebAppData: telegramInitData:', telegramInitData);
 
-  // Data check string
   const data_check_string = Object.keys(telegramInitData)
     .filter(key => key !== 'hash')
     .map(key => `${key}=${telegramInitData[key]}`)
@@ -12,7 +11,6 @@ const validateTelegramWebAppData = (telegramInitData, botToken) => {
     .join('\n');
   console.log('validateTelegramWebAppData: data_check_string:', data_check_string);
 
-  // Create HMAC-SHA-256
   const secret = crypto
     .createHmac('sha256', 'WebAppData')
     .update(botToken)
@@ -32,9 +30,9 @@ const validateTelegramWebAppData = (telegramInitData, botToken) => {
 export const telegramAuthMiddleware = (req, res, next) => {
   try {
     const initData = req.headers['x-telegram-init-data'];
+    console.log('telegramAuthMiddleware: Request URL:', req.url);
     console.log('telegramAuthMiddleware: initData:', initData);
 
-    // Development mode: use test user if no Telegram data
     if (!initData) {
       console.log('telegramAuthMiddleware: No initData provided');
       if (process.env.NODE_ENV === 'development') {
@@ -56,7 +54,7 @@ export const telegramAuthMiddleware = (req, res, next) => {
         last_name: 'Test'
       };
       return next();
-      // Удалить заглушку после исправления initData
+      // Удалить после исправления initData
       // return res.status(401).json({ error: 'Telegram initialization data is missing' });
     }
 
@@ -76,7 +74,6 @@ export const telegramAuthMiddleware = (req, res, next) => {
       return res.status(401).json({ error: 'Invalid Telegram data' });
     }
 
-    // Add user data to request
     req.telegramUser = JSON.parse(parsedInitData.user);
     console.log('telegramAuthMiddleware: telegramUser:', req.telegramUser);
     next();

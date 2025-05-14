@@ -16,6 +16,7 @@ const CreateProject = () => {
     try {
       const initData = window.Telegram?.WebApp?.initData || '';
       console.log('CreateProject: Sending request with initData:', initData);
+      console.log('CreateProject: Form data:', formData);
 
       const response = await fetch('https://to-do-1-ob6b.onrender.com/api/projects', {
         method: 'POST',
@@ -26,9 +27,17 @@ const CreateProject = () => {
         body: JSON.stringify(formData),
       });
 
+      const responseText = await response.text();
+      console.log('CreateProject: Response status:', response.status);
+      console.log('CreateProject: Response text:', responseText);
+
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create project');
+        try {
+          const errorData = JSON.parse(responseText);
+          throw new Error(errorData.error || 'Failed to create project');
+        } catch {
+          throw new Error(`Failed to create project: ${response.status} ${responseText}`);
+        }
       }
 
       navigate('/');
