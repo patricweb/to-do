@@ -35,9 +35,7 @@ router.get('/projects/:projectId/tasks', telegramAuthMiddleware, async (req, res
       return res.status(404).json({ error: 'Project not found or access denied' });
     }
     
-    const tasks = await Task.find({ project: project._id })
-      .populate('createdBy', 'username firstName lastName')
-      .populate('completedBy', 'username firstName lastName');
+    const tasks = await Task.find({ project: project._id });
     console.log('GET /projects/:projectId/tasks: Found tasks:', tasks);
     res.json(tasks);
   } catch (error) {
