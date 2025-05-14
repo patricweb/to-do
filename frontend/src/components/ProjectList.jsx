@@ -19,6 +19,8 @@ const ProjectList = () => {
     setDebugInfo(prev => prev + `initData: ${initData || 'empty'}\n`);
     setDebugInfo(prev => prev + `SDK version: ${WebApp?.version || 'unknown'}\n`);
     setDebugInfo(prev => prev + `URL: ${window.location.href}\n`);
+    setDebugInfo(prev => prev + `Platform: ${WebApp?.platform || 'unknown'}\n`);
+    setDebugInfo(prev => prev + `User Agent: ${navigator.userAgent}\n`);
 
     const getProjects = async () => {
       try {
@@ -85,16 +87,13 @@ const ProjectList = () => {
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
       )}
-      {error && error.includes('401') && (
+      {error && (
         <div className="bg-yellow-50 p-4 rounded-lg">
-          <p className="text-yellow-600">Предупреждение: Авторизация не удалась. Пожалуйста, перезапустите бота с /start или используйте браузер для тестирования.</p>
-          <pre className="mt-2 text-sm text-yellow-800">{debugInfo}</pre>
-        </div>
-      )}
-      {error && !error.includes('401') && (
-        <div className="bg-red-50 p-4 rounded-lg">
-          <p className="text-red-600">Ошибка: {error}</p>
-          <p className="text-red-600 mt-2">Попробуйте перезапустить бота с помощью /start</p>
+          <p className="text-yellow-600">
+            Не удалось загрузить проекты: {error}.
+            {error.includes('401') && ' Авторизация не удалась. Продолжайте тестировать через создание проектов.'}
+          </p>
+          <p className="text-yellow-600 mt-2">Вы всё равно можете создать новый проект.</p>
         </div>
       )}
       {!loading && !error && projects.length === 0 && (

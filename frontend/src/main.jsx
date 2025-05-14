@@ -38,23 +38,8 @@ loadTelegramSDK()
     console.log('Telegram Web App: initialized, initData:', initData);
     console.log('Telegram Web App: URL:', window.location.href);
     console.log('Telegram Web App: is Telegram?', window.location.href.includes('tgWebApp'));
-    
-    if (!initData && window.location.href.includes('tgWebApp')) {
-      console.error('Telegram Web App: initData is empty in Telegram');
-      ReactDOM.createRoot(document.getElementById('root')).render(
-        <div style={{ padding: '20px', color: 'red', textAlign: 'center' }}>
-          Ошибка: Не удалось инициализировать Telegram Web App. Пожалуйста, перезапустите бота с помощью /start.
-          <pre style={{ textAlign: 'left', marginTop: '10px', fontSize: '12px' }}>
-            Debug Info:
-            URL: {window.location.href}
-            SDK Version: {WebApp.version || 'unknown'}
-            initData: {initData || 'empty'}
-          </pre>
-        </div>
-      );
-      return;
-    }
 
+    // Всегда рендерим App, даже если initData пустая
     ReactDOM.createRoot(document.getElementById('root')).render(
       <React.StrictMode>
         <App />
@@ -65,7 +50,12 @@ loadTelegramSDK()
     console.error('Error loading Telegram Web App SDK:', err);
     ReactDOM.createRoot(document.getElementById('root')).render(
       <div style={{ padding: '20px', color: 'red', textAlign: 'center' }}>
-        Ошибка: Это приложение должно быть открыто в Telegram. Пожалуйста, используйте @YourBot.
+        Ошибка: Это приложение должно быть открыто в Telegram. Пожалуйста, используйте @test_4_web_app_bot.
+        <pre style={{ textAlign: 'left', marginTop: '10px', fontSize: '12px' }}>
+          Debug Info:
+          Error: {err.message}
+          URL: {window.location.href}
+        </pre>
       </div>
     );
   });

@@ -8,10 +8,10 @@ import CreateTask from './components/CreateTask';
 function App() {
   return (
     <Router>
-      <div className="tg-mini-app">
-        <div className="container mx-auto px-4">
-          <header className="tg-mini-app-header">
-            <h1 className="tg-mini-app-title">To-Do List</h1>
+      <div className="tg-mini-app min-h-screen bg-gray-50">
+        <div className="container mx-auto px-4 py-6">
+          <header className="tg-mini-app-header mb-6">
+            <h1 className="tg-mini-app-title text-3xl font-bold text-gray-800">To-Do List</h1>
           </header>
 
           <main className="animate-fade-in">
