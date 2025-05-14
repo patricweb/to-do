@@ -8,6 +8,7 @@ const loadTelegramSDK = () => {
   return new Promise((resolve, reject) => {
     if (window.Telegram && window.Telegram.WebApp) {
       console.log('Telegram Web App SDK already loaded:', window.Telegram.WebApp);
+      console.log('SDK version:', window.Telegram.WebApp.version);
       resolve(window.Telegram.WebApp);
       return;
     }
@@ -18,6 +19,7 @@ const loadTelegramSDK = () => {
     script.onload = () => {
       if (window.Telegram && window.Telegram.WebApp) {
         console.log('Telegram Web App SDK loaded:', window.Telegram.WebApp);
+        console.log('SDK version:', window.Telegram.WebApp.version);
         resolve(window.Telegram.WebApp);
       } else {
         reject(new Error('Telegram Web App SDK failed to load'));

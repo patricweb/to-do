@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { WebApp } from '@twa-dev/sdk';
 
 const CreateProject = () => {
   const navigate = useNavigate();
@@ -15,17 +14,23 @@ const CreateProject = () => {
     setError(null);
 
     try {
+      const initData = window.Telegram?.WebApp?.initData || '';
+      if (!initData) {
+        throw new Error('Telegram Web App not initialized');
+      }
+
       const response = await fetch('https://to-do-1-ob6b.onrender.com/api/projects', {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${WebApp.initData}`,
           'Content-Type': 'application/json',
+          'x-telegram-init-data': initData,
         },
         body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create project');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create project');
       }
 
       navigate('/');
@@ -102,4 +107,4 @@ const CreateProject = () => {
   );
 };
 
-export default CreateProject; 
+export default CreateProject;

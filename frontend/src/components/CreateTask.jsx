@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { WebApp } from '@twa-dev/sdk';
 
 const CreateTask = () => {
   const { id } = useParams();
@@ -18,17 +17,23 @@ const CreateTask = () => {
     setError(null);
 
     try {
+      const initData = window.Telegram?.WebApp?.initData || '';
+      if (!initData) {
+        throw new Error('Telegram Web App not initialized');
+      }
+
       const response = await fetch(`https://to-do-1-ob6b.onrender.com/api/projects/${id}/tasks`, {
         method: 'POST',
         headers: {
-          'Authorization': `Bearer ${WebApp.initData}`,
           'Content-Type': 'application/json',
+          'x-telegram-init-data': initData,
         },
         body: JSON.stringify(formData),
       });
 
       if (!response.ok) {
-        throw new Error('Failed to create task');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to create task');
       }
 
       navigate(`/project/${id}`);
@@ -136,4 +141,4 @@ const CreateTask = () => {
   );
 };
 
-export default CreateTask; 
+export default CreateTask;

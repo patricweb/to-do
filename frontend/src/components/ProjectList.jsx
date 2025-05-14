@@ -24,6 +24,7 @@ const ProjectList = () => {
     const initData = window.Telegram.WebApp.initData;
     console.log('ProjectList: initData:', initData);
     setDebugInfo(prev => prev + `initData: ${initData || 'empty'}\n`);
+    setDebugInfo(prev => prev + `SDK version: ${window.Telegram.WebApp.version || 'unknown'}\n`);
 
     const getProjects = async () => {
       try {
@@ -77,6 +78,7 @@ const ProjectList = () => {
             zIndex: 1000,
             fontSize: '16px',
             fontWeight: 'bold',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.2)',
           }}
         >
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">

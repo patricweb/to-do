@@ -16,7 +16,7 @@ export async function fetchProjects() {
   checkInitData();
   try {
     console.log('API: Sending fetchProjects request...');
-    await delay(1000); // Задержка 1 сек для Render
+    await delay(1000);
     const res = await fetch(`${API_BASE}/projects`, {
       method: 'GET',
       headers: {
@@ -50,7 +50,10 @@ export async function createProject(title, description = '') {
       },
       body: JSON.stringify({ title, description }),
     });
-    if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
+    }
     const data = await res.json();
     console.log('API: createProject response:', data);
     return data;
@@ -65,14 +68,17 @@ export async function fetchTasks(projectId) {
   try {
     console.log('API: Sending fetchTasks request...');
     await delay(1000);
-    const res = await fetch(`${API_BASE}/tasks/projects/${projectId}/tasks`, {
+    const res = await fetch(`${API_BASE}/projects/${projectId}/tasks`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',
         'x-telegram-init-data': initData,
       },
     });
-    if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
+    }
     const data = await res.json();
     console.log('API: fetchTasks response:', data);
     return data;
@@ -87,7 +93,7 @@ export async function createTask(projectId, title, priority = 'medium', dueDate 
   try {
     console.log('API: Sending createTask request...');
     await delay(1000);
-    const res = await fetch(`${API_BASE}/tasks/projects/${projectId}/tasks`, {
+    const res = await fetch(`${API_BASE}/projects/${projectId}/tasks`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -95,7 +101,10 @@ export async function createTask(projectId, title, priority = 'medium', dueDate 
       },
       body: JSON.stringify({ title, priority, dueDate }),
     });
-    if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
+    }
     const data = await res.json();
     console.log('API: createTask response:', data);
     return data;
@@ -117,7 +126,10 @@ export async function generateShareToken(projectId) {
         'x-telegram-init-data': initData,
       },
     });
-    if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
+    }
     const data = await res.json();
     console.log('API: generateShareToken response:', data);
     return data;
@@ -139,7 +151,10 @@ export async function getProjectByToken(token) {
         'x-telegram-init-data': initData,
       },
     });
-    if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
+    }
     const data = await res.json();
     console.log('API: getProjectByToken response:', data);
     return data;
@@ -162,7 +177,10 @@ export async function toggleTaskCompletion(taskId) {
       },
       body: JSON.stringify({ completed: true }),
     });
-    if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+    if (!res.ok) {
+      const errorData = await res.json();
+      throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
+    }
     const data = await res.json();
     console.log('API: toggleTaskCompletion response:', data);
     return data;

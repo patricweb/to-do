@@ -1,6 +1,5 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { WebApp } from '@twa-dev/sdk';
 import TaskItem from './TaskItem';
 
 const ProjectDetail = () => {
@@ -13,15 +12,22 @@ const ProjectDetail = () => {
   useEffect(() => {
     const fetchProjectAndTasks = async () => {
       try {
+        const initData = window.Telegram?.WebApp?.initData || '';
+        if (!initData) {
+          throw new Error('Telegram Web App not initialized');
+        }
+
         // Получаем проект
         const projectResponse = await fetch(`https://to-do-1-ob6b.onrender.com/api/projects/${id}`, {
           headers: {
-            'Authorization': `Bearer ${WebApp.initData}`,
+            'Content-Type': 'application/json',
+            'x-telegram-init-data': initData,
           },
         });
 
         if (!projectResponse.ok) {
-          throw new Error('Failed to fetch project');
+          const errorData = await projectResponse.json();
+          throw new Error(errorData.error || 'Failed to fetch project');
         }
 
         const projectData = await projectResponse.json();
@@ -30,12 +36,14 @@ const ProjectDetail = () => {
         // Получаем задачи
         const tasksResponse = await fetch(`https://to-do-1-ob6b.onrender.com/api/projects/${id}/tasks`, {
           headers: {
-            'Authorization': `Bearer ${WebApp.initData}`,
+            'Content-Type': 'application/json',
+            'x-telegram-init-data': initData,
           },
         });
 
         if (!tasksResponse.ok) {
-          throw new Error('Failed to fetch tasks');
+          const errorData = await tasksResponse.json();
+          throw new Error(errorData.error || 'Failed to fetch tasks');
         }
 
         const tasksData = await tasksResponse.json();
@@ -52,11 +60,16 @@ const ProjectDetail = () => {
 
   const handleTaskToggle = async (taskId) => {
     try {
+      const initData = window.Telegram?.WebApp?.initData || '';
+      if (!initData) {
+        throw new Error('Telegram Web App not initialized');
+      }
+
       const response = await fetch(`https://to-do-1-ob6b.onrender.com/api/tasks/${taskId}`, {
         method: 'PATCH',
         headers: {
-          'Authorization': `Bearer ${WebApp.initData}`,
           'Content-Type': 'application/json',
+          'x-telegram-init-data': initData,
         },
         body: JSON.stringify({
           completed: !tasks.find(task => task._id === taskId).completed
@@ -64,7 +77,8 @@ const ProjectDetail = () => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to update task');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to update task');
       }
 
       const updatedTask = await response.json();
@@ -78,15 +92,22 @@ const ProjectDetail = () => {
 
   const handleTaskDelete = async (taskId) => {
     try {
+      const initData = window.Telegram?.WebApp?.initData || '';
+      if (!initData) {
+        throw new Error('Telegram Web App not initialized');
+      }
+
       const response = await fetch(`https://to-do-1-ob6b.onrender.com/api/tasks/${taskId}`, {
         method: 'DELETE',
         headers: {
-          'Authorization': `Bearer ${WebApp.initData}`,
+          'Content-Type': 'application/json',
+          'x-telegram-init-data': initData,
         },
       });
 
       if (!response.ok) {
-        throw new Error('Failed to delete task');
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Failed to delete task');
       }
 
       setTasks(tasks.filter(task => task._id !== taskId));
@@ -190,4 +211,4 @@ const ProjectDetail = () => {
   );
 };
 
-export default ProjectDetail; 
+export default ProjectDetail;
