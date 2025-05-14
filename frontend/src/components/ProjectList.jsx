@@ -51,13 +51,13 @@ const ProjectList = () => {
 
   return (
     <div className="space-y-6 p-4 bg-gray-50 min-h-screen" style={{ display: 'block !important' }}>
-      <div className="border border-gray-300 p-4 bg-gray-100 text-sm">
+      <div className="border border-gray-300 p-4 bg-gray-100 text-sm" style={{ display: 'block !important' }}>
         <pre className="debug-pre">{debugInfo}</pre>
       </div>
 
-      <div className="flex flex-row justify-between items-center mb-4">
+      <div className="flex flex-row justify-between items-center mb-4" style={{ display: 'flex !important' }}>
         <h2 className="text-2xl font-bold text-gray-800">Мои проекты</h2>
-        <Link to="/create-project" className="btn-primary">
+        <Link to="/create-project" className="btn-primary" style={{ display: 'inline-flex !important' }}>
           <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
