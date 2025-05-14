@@ -38,8 +38,10 @@ loadTelegramSDK()
     console.log('Telegram Web App: initialized, initData:', initData);
     console.log('Telegram Web App: URL:', window.location.href);
     console.log('Telegram Web App: is Telegram?', window.location.href.includes('tgWebApp'));
+    console.log('Telegram Web App: Platform:', WebApp.platform);
+    console.log('Telegram Web App: Theme:', JSON.stringify(WebApp.themeParams));
+    console.log('Telegram Web App: Viewport:', WebApp.viewportHeight, WebApp.viewportStableHeight);
 
-    // Всегда рендерим App, даже если initData пустая
     ReactDOM.createRoot(document.getElementById('root')).render(
       <React.StrictMode>
         <App />
