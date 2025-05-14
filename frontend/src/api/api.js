@@ -3,8 +3,10 @@ const initData = window.Telegram?.WebApp?.initData || '';
 
 const checkInitData = () => {
   if (!initData) {
-    throw new Error('Telegram Web App is not initialized');
+    console.error('API: initData is empty');
+    throw new Error('Telegram initialization data is missing');
   }
+  console.log('API: Using initData:', initData);
 };
 
 // Задержка для ожидания "пробуждения" сервера
@@ -23,7 +25,8 @@ export async function fetchProjects() {
       },
     });
     if (!res.ok) {
-      throw new Error(`HTTP error! Status: ${res.status}`);
+      const errorData = await res.json();
+      throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
     }
     const data = await res.json();
     console.log('API: fetchProjects response:', data);

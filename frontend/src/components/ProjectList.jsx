@@ -7,29 +7,39 @@ const ProjectList = () => {
   const [projects, setProjects] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const [debugInfo, setDebugInfo] = useState('');
+  const [debugInfo, setDebugInfo] = useState('Initializing...\n');
 
   useEffect(() => {
-    setDebugInfo('Initializing...\n');
-    if (!window.Telegram || !window.Telegram.WebApp?.initData) {
+    console.log('ProjectList: Initializing...');
+    setDebugInfo(prev => prev + 'Checking Telegram Web App...\n');
+
+    if (!window.Telegram || !window.Telegram.WebApp) {
+      console.error('ProjectList: Telegram Web App not initialized');
       setDebugInfo(prev => prev + 'Error: Telegram Web App not initialized\n');
       setError('Please open this app in Telegram');
       setLoading(false);
       return;
     }
 
-    setDebugInfo(prev => prev + `initData: ${window.Telegram.WebApp.initData}\n`);
+    const initData = window.Telegram.WebApp.initData;
+    console.log('ProjectList: initData:', initData);
+    setDebugInfo(prev => prev + `initData: ${initData || 'empty'}\n`);
 
     const getProjects = async () => {
       try {
+        console.log('ProjectList: Fetching projects...');
         setDebugInfo(prev => prev + 'Fetching projects...\n');
         const data = await fetchProjects();
+        console.log('ProjectList: Projects fetched:', data);
         setDebugInfo(prev => prev + `Projects fetched: ${JSON.stringify(data)}\n`);
         setProjects(data);
       } catch (err) {
-        setDebugInfo(prev => prev + `Error: ${err.message}\n`);
+        console.error('ProjectList: Error fetching projects:', err);
+        setDebugInfo(prev => prev + `Error: ${err.message || 'Unknown error'}\n`);
         setError(err.message || 'Failed to load projects');
       } finally {
+        console.log('ProjectList: Loading complete');
+        setDebugInfo(prev => prev + 'Loading complete\n');
         setLoading(false);
       }
     };
@@ -40,7 +50,16 @@ const ProjectList = () => {
   return (
     <div className="space-y-6">
       {/* Отладочная информация */}
-      <pre style={{ background: '#f0f0f0', padding: '10px', fontSize: '12px', whiteSpace: 'pre-wrap' }}>
+      <pre
+        style={{
+          background: '#f0f0f0',
+          padding: '10px',
+          fontSize: '12px',
+          whiteSpace: 'pre-wrap',
+          maxHeight: '200px',
+          overflowY: 'auto',
+        }}
+      >
         {debugInfo}
       </pre>
 
@@ -50,24 +69,35 @@ const ProjectList = () => {
         <Link
           to="/create-project"
           className="btn-primary flex items-center space-x-2"
-          style={{ backgroundColor: '#2481cc', color: 'white', padding: '10px 20px' }}
+          style={{
+            backgroundColor: '#2481cc',
+            color: 'white',
+            padding: '12px 24px',
+            borderRadius: '8px',
+            zIndex: 1000,
+            fontSize: '16px',
+            fontWeight: 'bold',
+          }}
         >
-          <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
           </svg>
           <span>Новый проект</span>
         </Link>
       </div>
 
-      {loading ? (
+      {/* Состояния загрузки, ошибки или списка проектов */}
+      {loading && (
         <div className="flex items-center justify-center h-64">
           <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-blue-500"></div>
         </div>
-      ) : error ? (
+      )}
+      {error && (
         <div className="bg-red-50 p-4 rounded-lg">
           <p className="text-red-600">Error: {error}</p>
         </div>
-      ) : projects.length === 0 ? (
+      )}
+      {!loading && !error && projects.length === 0 && (
         <div className="text-center py-12">
           <svg
             className="mx-auto h-12 w-12 text-gray-400"
@@ -85,7 +115,8 @@ const ProjectList = () => {
           <h3 className="mt-2 text-sm font-medium text-gray-900">Нет проектов</h3>
           <p className="mt-1 text-sm text-gray-500">Начните с создания нового проекта.</p>
         </div>
-      ) : (
+      )}
+      {!loading && !error && projects.length > 0 && (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {projects.map(project => (
             <ProjectCard key={project._id} project={project} />

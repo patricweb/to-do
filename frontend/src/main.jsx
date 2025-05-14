@@ -33,7 +33,11 @@ loadTelegramSDK()
   .then(WebApp => {
     WebApp.ready();
     WebApp.expand();
-    console.log('Telegram Web App initialized, initData:', WebApp.initData);
+    const initData = WebApp.initData || '';
+    console.log('Telegram Web App initialized, initData:', initData);
+    if (!initData) {
+      console.error('Telegram Web App: initData is empty');
+    }
 
     ReactDOM.createRoot(document.getElementById('root')).render(
       <React.StrictMode>
