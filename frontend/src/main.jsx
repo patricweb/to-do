@@ -47,7 +47,7 @@ loadTelegramSDK()
     console.log('Render: Root element exists?', !!root);
     if (!root) {
       console.error('Render: Root element not found');
-      document.body.innerHTML = '<div style="color: red; padding: 20px;">Error: Root element not found. Please check index.html.</div>';
+      document.body.innerHTML = '<div style="color: red; padding: 20px; text-align: center;">Error: Root element not found. Please check index.html.</div>';
       return;
     }
 
@@ -60,14 +60,14 @@ loadTelegramSDK()
   })
   .catch(err => {
     console.error('Error loading Telegram Web App SDK:', err);
-    ReactDOM.createRoot(document.getElementById('root')).render(
-      <div style={{ padding: '20px', color: 'red', textAlign: 'center' }}>
+    document.body.innerHTML = `
+      <div style="padding: 20px; color: red; text-align: center;">
         Ошибка: Это приложение должно быть открыто в Telegram. Пожалуйста, используйте @test_4_web_app_bot.
-        <pre style={{ textAlign: 'left', marginTop: '10px', fontSize: '12px' }}>
+        <pre style="text-align: left; margin-top: 10px; font-size: 12px; background: #f0f0f0; padding: 10px;">
           Debug Info:
-          Error: {err.message}
-          URL: {window.location.href}
+          Error: ${err.message}
+          URL: ${window.location.href}
         </pre>
       </div>
-    );
+    `;
   });

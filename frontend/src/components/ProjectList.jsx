@@ -50,7 +50,7 @@ const ProjectList = () => {
   }, []);
 
   return (
-    <div className="space-y-6 p-4 bg-gray-50 min-h-screen">
+    <div className="space-y-6 p-4 bg-gray-50 min-h-screen" style={{ display: 'block !important' }}>
       <div className="border border-gray-300 p-4 bg-gray-100 text-sm">
         <pre className="debug-pre">{debugInfo}</pre>
       </div>
