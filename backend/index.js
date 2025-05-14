@@ -26,10 +26,7 @@ if (!process.env.MONGODB_URI) {
 }
 
 mongoose
-  .connect(process.env.MONGODB_URI, {
-    useNewUrlParser: true,
-    useUnifiedTopology: true
-  })
+  .connect(process.env.MONGODB_URI)
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => {
     console.error('MongoDB connection error:', err);
@@ -39,10 +36,6 @@ mongoose
 // Routes
 app.use('/api/projects', projectRoutes);
 app.use('/api/tasks', taskRoutes);
-
-// Remove unused routes
-// app.use('/api/projects', require('./routes/projectRoutes'));
-// app.use('/api/tasks', require('./routes/taskRoutes'));
 
 // Error handling middleware
 app.use((err, req, res, next) => {
@@ -61,11 +54,15 @@ if (process.env.BOT_TOKEN) {
   setTimeout(() => {
     try {
       bot.launch({
+        webhook: {
+          domain: 'https://to-do-1-ob6b.onrender.com',
+          path: '/webhook',
+          port: PORT,
+        },
         allowedUpdates: ['message', 'callback_query', 'web_app_data'],
-        dropPendingUpdates: true,
       })
         .then(() => {
-          console.log('Telegram bot started successfully');
+          console.log('Telegram bot started successfully with webhook');
         })
         .catch(err => {
           console.error('Error starting Telegram bot:', err);

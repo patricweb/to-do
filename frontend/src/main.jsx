@@ -42,11 +42,21 @@ loadTelegramSDK()
     console.log('Telegram Web App: Theme:', JSON.stringify(WebApp.themeParams));
     console.log('Telegram Web App: Viewport:', WebApp.viewportHeight, WebApp.viewportStableHeight);
 
-    ReactDOM.createRoot(document.getElementById('root')).render(
+    // Проверка рендеринга
+    const root = document.getElementById('root');
+    console.log('Render: Root element exists?', !!root);
+    if (!root) {
+      console.error('Render: Root element not found');
+      document.body.innerHTML = '<div style="color: red; padding: 20px;">Error: Root element not found. Please check index.html.</div>';
+      return;
+    }
+
+    ReactDOM.createRoot(root).render(
       <React.StrictMode>
         <App />
       </React.StrictMode>
     );
+    console.log('Render: App rendered');
   })
   .catch(err => {
     console.error('Error loading Telegram Web App SDK:', err);
