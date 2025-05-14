@@ -35,6 +35,8 @@ const ProjectList = () => {
         setDebugInfo(prev => prev + `Error: ${err.message || 'Unknown error'}\n`);
         if (err.message.includes('503')) {
           setDebugInfo(prev => prev + 'Backend unavailable (503), showing UI anyway...\n');
+        } else if (err.message.includes('401')) {
+          setDebugInfo(prev => prev + 'Authentication failed (401), showing UI anyway...\n');
         }
         setError(err.message || 'Failed to load projects');
       } finally {

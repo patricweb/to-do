@@ -44,14 +44,8 @@ export const telegramAuthMiddleware = (req, res, next) => {
         };
         return next();
       }
-      console.warn('telegramAuthMiddleware: Allowing request without initData temporarily');
-      req.telegramUser = {
-        id: 'temp-user-id',
-        username: 'temp-user',
-        first_name: 'Temp',
-        last_name: 'User'
-      };
-      return next(); // Временное решение для отладки
+      console.error('telegramAuthMiddleware: No initData provided in production');
+      return res.status(401).json({ error: 'Telegram initialization data is missing' });
     }
 
     const parsedInitData = Object.fromEntries(new URLSearchParams(initData));
