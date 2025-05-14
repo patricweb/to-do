@@ -6,6 +6,8 @@ import CreateProject from './components/CreateProject';
 import CreateTask from './components/CreateTask';
 
 function App() {
+  console.log('App: Rendering...');
+  console.log('App: Current URL:', window.location.href);
   return (
     <Router>
       <div className="tg-mini-app min-h-screen bg-gray-50">
