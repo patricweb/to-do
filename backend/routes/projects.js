@@ -15,7 +15,7 @@ router.get('/', telegramAuthMiddleware, async (req, res) => {
         { creator: req.telegramUser.id },
         { members: req.telegramUser.id }
       ]
-    }).populate('creator', 'username firstName lastName');
+    });
     console.log('GET /projects: Found projects:', projects);
     res.json(projects);
   } catch (error) {
@@ -54,7 +54,7 @@ router.get('/:id', telegramAuthMiddleware, async (req, res) => {
         { creator: req.telegramUser.id },
         { members: req.telegramUser.id }
       ]
-    }).populate('creator', 'username firstName lastName');
+    });
     
     if (!project) {
       console.log('GET /projects/:id: Project not found');

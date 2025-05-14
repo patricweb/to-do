@@ -1,9 +1,11 @@
 import crypto from 'crypto';
 
 const validateTelegramWebAppData = (telegramInitData, botToken) => {
-  console.log('validateTelegramWebAppData: Starting validation...');
   console.log('validateTelegramWebAppData: telegramInitData:', telegramInitData);
-
+  if (!telegramInitData || Object.keys(telegramInitData).length === 0) {
+    console.log('validateTelegramWebAppData: Empty initData');
+    return false;
+  }
   const data_check_string = Object.keys(telegramInitData)
     .filter(key => key !== 'hash')
     .map(key => `${key}=${telegramInitData[key]}`)
@@ -15,14 +17,11 @@ const validateTelegramWebAppData = (telegramInitData, botToken) => {
     .createHmac('sha256', 'WebAppData')
     .update(botToken)
     .digest();
-  console.log('validateTelegramWebAppData: secret generated');
-
   const hash = crypto
     .createHmac('sha256', secret)
     .update(data_check_string)
     .digest('hex');
-  console.log('validateTelegramWebAppData: generated hash:', hash);
-  console.log('validateTelegramWebAppData: expected hash:', telegramInitData.hash);
+  console.log('validateTelegramWebAppData: generated hash:', hash, 'expected:', telegramInitData.hash);
 
   return hash === telegramInitData.hash;
 };
@@ -45,17 +44,7 @@ export const telegramAuthMiddleware = (req, res, next) => {
         };
         return next();
       }
-      // Временная заглушка для Telegram (для теста)
-      console.log('telegramAuthMiddleware: Using test user for Telegram (temporary)');
-      req.telegramUser = {
-        id: 'telegram-test-user',
-        username: 'telegram-test',
-        first_name: 'Telegram',
-        last_name: 'Test'
-      };
-      return next();
-      // Удалить после исправления initData
-      // return res.status(401).json({ error: 'Telegram initialization data is missing' });
+      return res.status(401).json({ error: 'Telegram initialization data is missing' });
     }
 
     const parsedInitData = Object.fromEntries(new URLSearchParams(initData));
@@ -79,6 +68,6 @@ export const telegramAuthMiddleware = (req, res, next) => {
     next();
   } catch (error) {
     console.error('telegramAuthMiddleware: Authentication error:', error);
-    res.status(401).json({ error: 'Authentication failed' });
+    res.status(401).json({ error: `Authentication failed: ${error.message}` });
   }
 };

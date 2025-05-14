@@ -129,6 +129,9 @@ const ProjectDetail = () => {
     return (
       <div className="bg-red-50 p-4 rounded-lg">
         <p className="text-red-600">{error}</p>
+        <Link to="/" className="mt-4 btn-primary inline-block">
+          Вернуться к проектам
+        </Link>
       </div>
     );
   }

@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
+import { createTask } from '../api/api';
 
 const CreateTask = () => {
   const { id } = useParams();
@@ -17,23 +18,9 @@ const CreateTask = () => {
     setError(null);
 
     try {
-      const initData = window.Telegram?.WebApp?.initData || '';
-      console.log('CreateTask: Sending request with initData:', initData);
-
-      const response = await fetch(`https://to-do-1-ob6b.onrender.com/api/projects/${id}/tasks`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-telegram-init-data': initData,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Failed to create task');
-      }
-
+      const dueDate = formData.dueDate ? new Date(formData.dueDate).toISOString() : null;
+      console.log('CreateTask: Sending task:', { ...formData, dueDate, projectId: id });
+      await createTask(id, formData.title, formData.priority, dueDate);
       navigate(`/project/${id}`);
     } catch (err) {
       console.error('CreateTask: Error:', err);
@@ -100,9 +87,9 @@ const CreateTask = () => {
             onChange={handleChange}
             className="input-field mt-1"
           >
-            <option value="low">Низкий</option>
-            <option value="medium">Средний</option>
             <option value="high">Высокий</option>
+            <option value="medium">Средний</option>
+            <option value="low">Низкий</option>
           </select>
         </div>
 
