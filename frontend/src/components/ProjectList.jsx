@@ -18,6 +18,7 @@ const ProjectList = () => {
     console.log('ProjectList: initData:', initData);
     setDebugInfo(prev => prev + `initData: ${initData || 'empty'}\n`);
     setDebugInfo(prev => prev + `SDK version: ${WebApp?.version || 'unknown'}\n`);
+    setDebugInfo(prev => prev + `URL: ${window.location.href}\n`);
 
     const getProjects = async () => {
       try {
@@ -25,7 +26,7 @@ const ProjectList = () => {
         setDebugInfo(prev => prev + 'Fetching projects...\n');
         const data = await fetchProjects();
         console.log('ProjectList: Projects fetched:', data);
-        setDebugInfo(prev => prev + `Projects fetched: ${JSON.stringify(data)}\n`);
+        setDebugInfo(prev => prev + `Projects fetched: ${JSON.stringify(data, null, 2)}\n`);
         setProjects(data);
       } catch (err) {
         console.error('ProjectList: Error fetching projects:', err);
@@ -51,6 +52,7 @@ const ProjectList = () => {
           whiteSpace: 'pre-wrap',
           maxHeight: '200px',
           overflowY: 'auto',
+          border: '1px solid #ddd',
         }}
       >
         {debugInfo}
@@ -85,7 +87,8 @@ const ProjectList = () => {
       )}
       {error && (
         <div className="bg-red-50 p-4 rounded-lg">
-          <p className="text-red-600">Error: {error}</p>
+          <p className="text-red-600">Ошибка: {error}</p>
+          <p className="text-red-600 mt-2">Попробуйте перезапустить бота с помощью /start</p>
         </div>
       )}
       {!loading && !error && projects.length === 0 && (

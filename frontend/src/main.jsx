@@ -31,15 +31,25 @@ const loadTelegramSDK = () => {
 
 loadTelegramSDK()
   .then(WebApp => {
+    console.log('Telegram Web App: SDK loaded');
     WebApp.ready();
     WebApp.expand();
     const initData = WebApp.initData || '';
-    console.log('Telegram Web App initialized, initData:', initData);
+    console.log('Telegram Web App: initialized, initData:', initData);
+    console.log('Telegram Web App: URL:', window.location.href);
+    console.log('Telegram Web App: is Telegram?', window.location.href.includes('tgWebApp'));
+    
     if (!initData && window.location.href.includes('tgWebApp')) {
       console.error('Telegram Web App: initData is empty in Telegram');
       ReactDOM.createRoot(document.getElementById('root')).render(
         <div style={{ padding: '20px', color: 'red', textAlign: 'center' }}>
-          Error: Failed to initialize Telegram Web App. Please restart the bot with /start.
+          Ошибка: Не удалось инициализировать Telegram Web App. Пожалуйста, перезапустите бота с помощью /start.
+          <pre style={{ textAlign: 'left', marginTop: '10px', fontSize: '12px' }}>
+            Debug Info:
+            URL: {window.location.href}
+            SDK Version: {WebApp.version || 'unknown'}
+            initData: {initData || 'empty'}
+          </pre>
         </div>
       );
       return;
@@ -55,7 +65,7 @@ loadTelegramSDK()
     console.error('Error loading Telegram Web App SDK:', err);
     ReactDOM.createRoot(document.getElementById('root')).render(
       <div style={{ padding: '20px', color: 'red', textAlign: 'center' }}>
-        Error: This app must be opened in Telegram. Please use @YourBot.
+        Ошибка: Это приложение должно быть открыто в Telegram. Пожалуйста, используйте @YourBot.
       </div>
     );
   });

@@ -10,6 +10,7 @@ const router = express.Router();
 router.get('/projects/:projectId/tasks', telegramAuthMiddleware, async (req, res) => {
   try {
     console.log('GET /projects/:projectId/tasks: Project ID:', req.params.projectId);
+    console.log('GET /projects/:projectId/tasks: User ID:', req.telegramUser.id);
     if (!mongoose.Types.ObjectId.isValid(req.params.projectId)) {
       console.log('GET /projects/:projectId/tasks: Invalid project ID');
       return res.status(400).json({ error: 'Invalid project ID' });
@@ -25,7 +26,13 @@ router.get('/projects/:projectId/tasks', telegramAuthMiddleware, async (req, res
     
     if (!project) {
       console.log('GET /projects/:projectId/tasks: Project not found');
-      return res.status(404).json({ error: 'Project not found' });
+      const projectExists = await Project.findById(req.params.projectId);
+      console.log('GET /projects/:projectId/tasks: Project exists?', !!projectExists);
+      if (projectExists) {
+        console.log('GET /projects/:projectId/tasks: Creator:', projectExists.creator);
+        console.log('GET /projects/:projectId/tasks: Members:', projectExists.members);
+      }
+      return res.status(404).json({ error: 'Project not found or access denied' });
     }
     
     const tasks = await Task.find({ project: project._id })
@@ -44,6 +51,7 @@ router.post('/projects/:projectId/tasks', telegramAuthMiddleware, async (req, re
   try {
     console.log('POST /projects/:projectId/tasks: Project ID:', req.params.projectId);
     console.log('POST /projects/:projectId/tasks: Request body:', req.body);
+    console.log('POST /projects/:projectId/tasks: User ID:', req.telegramUser.id);
     if (!mongoose.Types.ObjectId.isValid(req.params.projectId)) {
       console.log('POST /projects/:projectId/tasks: Invalid project ID');
       return res.status(400).json({ error: 'Invalid project ID' });
@@ -59,7 +67,7 @@ router.post('/projects/:projectId/tasks', telegramAuthMiddleware, async (req, re
     
     if (!project) {
       console.log('POST /projects/:projectId/tasks: Project not found');
-      return res.status(404).json({ error: 'Project not found' });
+      return res.status(404).json({ error: 'Project not found or access denied' });
     }
     
     const task = new Task({
@@ -80,6 +88,7 @@ router.post('/projects/:projectId/tasks', telegramAuthMiddleware, async (req, re
 router.patch('/:id', telegramAuthMiddleware, async (req, res) => {
   try {
     console.log('PATCH /tasks/:id: Task ID:', req.params.id);
+    console.log('PATCH /tasks/:id: User ID:', req.telegramUser.id);
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       console.log('PATCH /tasks/:id: Invalid task ID');
       return res.status(400).json({ error: 'Invalid task ID' });
@@ -123,6 +132,7 @@ router.patch('/:id', telegramAuthMiddleware, async (req, res) => {
 router.delete('/:id', telegramAuthMiddleware, async (req, res) => {
   try {
     console.log('DELETE /tasks/:id: Task ID:', req.params.id);
+    console.log('DELETE /tasks/:id: User ID:', req.telegramUser.id);
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       console.log('DELETE /tasks/:id: Invalid task ID');
       return res.status(400).json({ error: 'Invalid task ID' });
