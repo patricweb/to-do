@@ -18,9 +18,7 @@ const CreateTask = () => {
 
     try {
       const initData = window.Telegram?.WebApp?.initData || '';
-      if (!initData) {
-        throw new Error('Telegram Web App not initialized');
-      }
+      console.log('CreateTask: Sending request with initData:', initData);
 
       const response = await fetch(`https://to-do-1-ob6b.onrender.com/api/projects/${id}/tasks`, {
         method: 'POST',
@@ -38,6 +36,7 @@ const CreateTask = () => {
 
       navigate(`/project/${id}`);
     } catch (err) {
+      console.error('CreateTask: Error:', err);
       setError(err.message);
     }
   };

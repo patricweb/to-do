@@ -35,17 +35,20 @@ loadTelegramSDK()
   .then(WebApp => {
     WebApp.ready();
     WebApp.expand();
-    const initData = WebApp.initData || '';
-    console.log('Telegram Web App initialized, initData:', initData);
-    if (!initData) {
-      console.error('Telegram Web App: initData is empty');
-    }
+    // Ожидание полной инициализации
+    setTimeout(() => {
+      const initData = WebApp.initData || '';
+      console.log('Telegram Web App initialized, initData:', initData);
+      if (!initData) {
+        console.error('Telegram Web App: initData is empty');
+      }
 
-    ReactDOM.createRoot(document.getElementById('root')).render(
-      <React.StrictMode>
-        <App />
-      </React.StrictMode>
-    );
+      ReactDOM.createRoot(document.getElementById('root')).render(
+        <React.StrictMode>
+          <App />
+        </React.StrictMode>
+      );
+    }, 100); // Задержка 100 мс для Telegram WebView
   })
   .catch(err => {
     console.error('Error loading Telegram Web App SDK:', err);

@@ -1,21 +1,11 @@
 const API_BASE = 'https://to-do-1-ob6b.onrender.com/api';
 const initData = window.Telegram?.WebApp?.initData || '';
 
-const checkInitData = () => {
-  if (!initData) {
-    console.error('API: initData is empty');
-    throw new Error('Telegram initialization data is missing');
-  }
-  console.log('API: Using initData:', initData);
-};
-
-// Задержка для ожидания "пробуждения" сервера
 const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
 
 export async function fetchProjects() {
-  checkInitData();
+  console.log('API: Sending fetchProjects request with initData:', initData);
   try {
-    console.log('API: Sending fetchProjects request...');
     await delay(1000);
     const res = await fetch(`${API_BASE}/projects`, {
       method: 'GET',
@@ -38,9 +28,8 @@ export async function fetchProjects() {
 }
 
 export async function createProject(title, description = '') {
-  checkInitData();
+  console.log('API: Sending createProject request with initData:', initData);
   try {
-    console.log('API: Sending createProject request...');
     await delay(1000);
     const res = await fetch(`${API_BASE}/projects`, {
       method: 'POST',
@@ -64,9 +53,8 @@ export async function createProject(title, description = '') {
 }
 
 export async function fetchTasks(projectId) {
-  checkInitData();
+  console.log('API: Sending fetchTasks request with initData:', initData);
   try {
-    console.log('API: Sending fetchTasks request...');
     await delay(1000);
     const res = await fetch(`${API_BASE}/projects/${projectId}/tasks`, {
       method: 'GET',
@@ -89,9 +77,8 @@ export async function fetchTasks(projectId) {
 }
 
 export async function createTask(projectId, title, priority = 'medium', dueDate = null) {
-  checkInitData();
+  console.log('API: Sending createTask request with initData:', initData);
   try {
-    console.log('API: Sending createTask request...');
     await delay(1000);
     const res = await fetch(`${API_BASE}/projects/${projectId}/tasks`, {
       method: 'POST',
@@ -115,9 +102,8 @@ export async function createTask(projectId, title, priority = 'medium', dueDate 
 }
 
 export async function generateShareToken(projectId) {
-  checkInitData();
+  console.log('API: Sending generateShareToken request with initData:', initData);
   try {
-    console.log('API: Sending generateShareToken request...');
     await delay(1000);
     const res = await fetch(`${API_BASE}/projects/share/${projectId}`, {
       method: 'POST',
@@ -140,9 +126,8 @@ export async function generateShareToken(projectId) {
 }
 
 export async function getProjectByToken(token) {
-  checkInitData();
+  console.log('API: Sending getProjectByToken request with initData:', initData);
   try {
-    console.log('API: Sending getProjectByToken request...');
     await delay(1000);
     const res = await fetch(`${API_BASE}/projects/shared/${token}`, {
       method: 'GET',
@@ -165,9 +150,8 @@ export async function getProjectByToken(token) {
 }
 
 export async function toggleTaskCompletion(taskId) {
-  checkInitData();
+  console.log('API: Sending toggleTaskCompletion request with initData:', initData);
   try {
-    console.log('API: Sending toggleTaskCompletion request...');
     await delay(1000);
     const res = await fetch(`${API_BASE}/tasks/${taskId}`, {
       method: 'PATCH',

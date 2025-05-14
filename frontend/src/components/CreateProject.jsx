@@ -15,9 +15,7 @@ const CreateProject = () => {
 
     try {
       const initData = window.Telegram?.WebApp?.initData || '';
-      if (!initData) {
-        throw new Error('Telegram Web App not initialized');
-      }
+      console.log('CreateProject: Sending request with initData:', initData);
 
       const response = await fetch('https://to-do-1-ob6b.onrender.com/api/projects', {
         method: 'POST',
@@ -35,6 +33,7 @@ const CreateProject = () => {
 
       navigate('/');
     } catch (err) {
+      console.error('CreateProject: Error:', err);
       setError(err.message);
     }
   };

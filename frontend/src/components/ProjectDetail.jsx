@@ -13,9 +13,7 @@ const ProjectDetail = () => {
     const fetchProjectAndTasks = async () => {
       try {
         const initData = window.Telegram?.WebApp?.initData || '';
-        if (!initData) {
-          throw new Error('Telegram Web App not initialized');
-        }
+        console.log('ProjectDetail: Fetching with initData:', initData);
 
         // Получаем проект
         const projectResponse = await fetch(`https://to-do-1-ob6b.onrender.com/api/projects/${id}`, {
@@ -49,6 +47,7 @@ const ProjectDetail = () => {
         const tasksData = await tasksResponse.json();
         setTasks(tasksData);
       } catch (err) {
+        console.error('ProjectDetail: Error:', err);
         setError(err.message);
       } finally {
         setLoading(false);
@@ -61,9 +60,7 @@ const ProjectDetail = () => {
   const handleTaskToggle = async (taskId) => {
     try {
       const initData = window.Telegram?.WebApp?.initData || '';
-      if (!initData) {
-        throw new Error('Telegram Web App not initialized');
-      }
+      console.log('ProjectDetail: Toggling task with initData:', initData);
 
       const response = await fetch(`https://to-do-1-ob6b.onrender.com/api/tasks/${taskId}`, {
         method: 'PATCH',
@@ -86,6 +83,7 @@ const ProjectDetail = () => {
         task._id === taskId ? updatedTask : task
       ));
     } catch (err) {
+      console.error('ProjectDetail: Error toggling task:', err);
       setError(err.message);
     }
   };
@@ -93,9 +91,7 @@ const ProjectDetail = () => {
   const handleTaskDelete = async (taskId) => {
     try {
       const initData = window.Telegram?.WebApp?.initData || '';
-      if (!initData) {
-        throw new Error('Telegram Web App not initialized');
-      }
+      console.log('ProjectDetail: Deleting task with initData:', initData);
 
       const response = await fetch(`https://to-do-1-ob6b.onrender.com/api/tasks/${taskId}`, {
         method: 'DELETE',
@@ -112,6 +108,7 @@ const ProjectDetail = () => {
 
       setTasks(tasks.filter(task => task._id !== taskId));
     } catch (err) {
+      console.error('ProjectDetail: Error deleting task:', err);
       setError(err.message);
     }
   };

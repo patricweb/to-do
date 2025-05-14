@@ -14,17 +14,15 @@ const ProjectList = () => {
     setDebugInfo(prev => prev + 'Checking Telegram Web App...\n');
 
     if (!window.Telegram || !window.Telegram.WebApp) {
-      console.error('ProjectList: Telegram Web App not initialized');
-      setDebugInfo(prev => prev + 'Error: Telegram Web App not initialized\n');
-      setError('Please open this app in Telegram');
-      setLoading(false);
-      return;
+      console.warn('ProjectList: Telegram Web App not initialized (likely browser)');
+      setDebugInfo(prev => prev + 'Warning: Telegram Web App not initialized (likely browser)\n');
+      // Для браузера продолжаем без initData
+    } else {
+      const initData = window.Telegram.WebApp.initData;
+      console.log('ProjectList: initData:', initData);
+      setDebugInfo(prev => prev + `initData: ${initData || 'empty'}\n`);
+      setDebugInfo(prev => prev + `SDK version: ${window.Telegram.WebApp.version || 'unknown'}\n`);
     }
-
-    const initData = window.Telegram.WebApp.initData;
-    console.log('ProjectList: initData:', initData);
-    setDebugInfo(prev => prev + `initData: ${initData || 'empty'}\n`);
-    setDebugInfo(prev => prev + `SDK version: ${window.Telegram.WebApp.version || 'unknown'}\n`);
 
     const getProjects = async () => {
       try {
