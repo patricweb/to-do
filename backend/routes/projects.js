@@ -1,19 +1,11 @@
 const express = require('express');
 const router = express.Router();
 const Project = require('../models/project');
-const { authenticate } = require('./telegramAuth');
+const { telegramAuthMiddleware } = require('../middleware/telegramAuth');
 
-router.get('/', async (req, res) => {
-  const initData = req.headers['x-telegram-init-data'];
-  console.log('Projects: Received initData from header:', initData);
-
-  const userId = await authenticate(initData);
-  if (!userId) {
-    console.error('Projects: Authentication failed');
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
+router.get('/', telegramAuthMiddleware, async (req, res) => {
   try {
+    const userId = req.userId;
     const projects = await Project.find({ userId });
     console.log('Projects: Found projects:', projects);
     res.json(projects);
@@ -23,25 +15,31 @@ router.get('/', async (req, res) => {
   }
 });
 
-// Остальные роуты (createProject, etc.) аналогично обновлены
-router.post('/', async (req, res) => {
-  const initData = req.headers['x-telegram-init-data'];
-  console.log('Projects: Received initData for create:', initData);
-
-  const userId = await authenticate(initData);
-  if (!userId) {
-    console.error('Projects: Authentication failed for create');
-    return res.status(401).json({ error: 'Unauthorized' });
-  }
-
+router.post('/', telegramAuthMiddleware, async (req, res) => {
   try {
     const { title, description } = req.body;
+    const userId = req.userId;
     const project = new Project({ title, description, userId, shareToken: require('nanoid').nanoid(10) });
     await project.save();
     console.log('Projects: Created project:', project);
     res.status(201).json(project);
   } catch (error) {
     console.error('Projects: Error creating project:', error.message);
+    res.status(500).json({ error: 'Internal server error' });
+  }
+});
+
+router.get('/shared/:token', telegramAuthMiddleware, async (req, res) => {
+  try {
+    const { token } = req.params;
+    const project = await Project.findOne({ shareToken: token });
+    if (!project) {
+      return res.status(404).json({ error: 'Project not found' });
+    }
+    console.log('Projects: Found shared project:', project);
+    res.json(project);
+  } catch (error) {
+    console.error('Projects: Error fetching shared project:', error.message);
     res.status(500).json({ error: 'Internal server error' });
   }
 });

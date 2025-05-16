@@ -14,7 +14,6 @@ const authenticate = async (initData) => {
   }
 
   try {
-    // Простая проверка: Telegram передает initData как строку с параметрами
     const params = new URLSearchParams(initData);
     const userId = params.get('user') ? JSON.parse(params.get('user')).id : null;
     const authDate = params.get('auth_date');
@@ -25,7 +24,6 @@ const authenticate = async (initData) => {
       return null;
     }
 
-    // Проверка существования пользователя в MongoDB
     let user = await User.findOne({ telegramId: userId });
     if (!user) {
       user = new User({ telegramId: userId, username: params.get('username') || `user_${userId}` });
@@ -42,4 +40,19 @@ const authenticate = async (initData) => {
   }
 };
 
-module.exports = { authenticate, bot };
+const telegramAuthMiddleware = async (req, res, next) => {
+  const initData = req.headers['x-telegram-init-data'];
+  console.log('Middleware: Received initData:', initData);
+
+  const userId = await authenticate(initData);
+  if (!userId) {
+    console.error('Middleware: Authentication failed');
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
+  req.userId = userId; // Добавляем userId в объект запроса
+  console.log('Middleware: Authentication successful, userId:', userId);
+  next();
+};
+
+module.exports = { authenticate, bot, telegramAuthMiddleware };
