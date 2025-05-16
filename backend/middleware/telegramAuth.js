@@ -1,89 +1,45 @@
-import crypto from 'crypto';
-import User from '../models/User.js';
+const { Telegraf } = require('telegraf');
+const mongoose = require('mongoose');
+const User = require('./models/user');
+require('dotenv').config();
 
-const validateTelegramWebAppData = (telegramInitData, botToken) => {
-  console.log('validateTelegramWebAppData: telegramInitData:', telegramInitData);
-  if (!telegramInitData || Object.keys(telegramInitData).length === 0) {
-    console.log('validateTelegramWebAppData: Empty initData');
-    return false;
+const bot = new Telegraf(process.env.BOT_TOKEN);
+
+const authenticate = async (initData) => {
+  console.log('Auth: Received initData:', initData);
+
+  if (!initData || typeof initData !== 'string' || initData.trim() === '') {
+    console.error('Auth: initData is empty or invalid');
+    return null;
   }
-  const data_check_string = Object.keys(telegramInitData)
-    .filter(key => key !== 'hash')
-    .map(key => `${key}=${telegramInitData[key]}`)
-    .sort()
-    .join('\n');
-  console.log('validateTelegramWebAppData: data_check_string:', data_check_string);
 
-  const secret = crypto
-    .createHmac('sha256', 'WebAppData')
-    .update(botToken)
-    .digest();
-  const hash = crypto
-    .createHmac('sha256', secret)
-    .update(data_check_string)
-    .digest('hex');
-  console.log('validateTelegramWebAppData: generated hash:', hash, 'expected:', telegramInitData.hash);
-
-  return hash === telegramInitData.hash;
-};
-
-export const telegramAuthMiddleware = async (req, res, next) => {
   try {
-    const initData = req.headers['x-telegram-init-data'];
-    console.log('telegramAuthMiddleware: Request URL:', req.url);
-    console.log('telegramAuthMiddleware: initData:', initData);
+    // Простая проверка: Telegram передает initData как строку с параметрами
+    const params = new URLSearchParams(initData);
+    const userId = params.get('user') ? JSON.parse(params.get('user')).id : null;
+    const authDate = params.get('auth_date');
+    const hash = params.get('hash');
 
-    if (!initData) {
-      console.log('telegramAuthMiddleware: No initData provided');
-      if (process.env.NODE_ENV === 'development') {
-        console.log('telegramAuthMiddleware: Using test user for development');
-        req.telegramUser = {
-          id: 'test-user-id',
-          username: 'test-user',
-          first_name: 'Test',
-          last_name: 'User',
-          _id: 'test-user-object-id'
-        };
-        return next();
-      }
-      console.error('telegramAuthMiddleware: No initData provided in production');
-      return res.status(401).json({ error: 'Telegram initialization data is missing' });
+    if (!userId || !authDate || !hash) {
+      console.error('Auth: Missing required parameters in initData');
+      return null;
     }
 
-    const parsedInitData = Object.fromEntries(new URLSearchParams(initData));
-    console.log('telegramAuthMiddleware: parsedInitData:', parsedInitData);
-
-    if (!process.env.BOT_TOKEN) {
-      console.error('telegramAuthMiddleware: BOT_TOKEN is not configured');
-      return res.status(500).json({ error: 'Bot token is not configured' });
+    // Проверка существования пользователя в MongoDB
+    let user = await User.findOne({ telegramId: userId });
+    if (!user) {
+      user = new User({ telegramId: userId, username: params.get('username') || `user_${userId}` });
+      await user.save();
+      console.log('Auth: New user created:', userId);
+    } else {
+      console.log('Auth: User found:', userId);
     }
 
-    const isValid = validateTelegramWebAppData(parsedInitData, process.env.BOT_TOKEN);
-    console.log('telegramAuthMiddleware: isValid:', isValid);
-
-    if (!isValid) {
-      console.error('telegramAuthMiddleware: Invalid Telegram data');
-      return res.status(401).json({ error: 'Invalid Telegram data' });
-    }
-
-    const telegramUser = JSON.parse(parsedInitData.user);
-    const user = await User.findOneAndUpdate(
-      { telegramId: telegramUser.id },
-      {
-        telegramId: telegramUser.id,
-        username: telegramUser.username,
-        firstName: telegramUser.first_name,
-        lastName: telegramUser.last_name,
-        photoUrl: telegramUser.photo_url,
-        lastActive: new Date()
-      },
-      { upsert: true, new: true }
-    );
-    req.telegramUser = { ...telegramUser, _id: user._id };
-    console.log('telegramAuthMiddleware: telegramUser:', req.telegramUser);
-    next();
+    return user._id;
   } catch (error) {
-    console.error('telegramAuthMiddleware: Authentication error:', error);
-    res.status(401).json({ error: `Authentication failed: ${error.message}` });
+    console.error('Auth: Error during authentication:', error.message);
+    return null;
   }
 };
+
+module.exports = { authenticate, bot };
