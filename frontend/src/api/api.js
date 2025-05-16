@@ -1,12 +1,13 @@
 const API_BASE = 'https://to-do-1-ob6b.onrender.com/api';
 const initData = window.Telegram?.WebApp?.initData || '';
 
-const delay = ms => new Promise(resolve => setTimeout(resolve, ms));
+if (!initData) {
+  console.warn('API: initData is empty. Ensure app is running in Telegram Web App.');
+}
 
 export async function fetchProjects() {
   console.log('API: Sending fetchProjects request with initData:', initData);
   try {
-    await delay(1000);
     const res = await fetch(`${API_BASE}/projects`, {
       method: 'GET',
       headers: {
@@ -16,6 +17,7 @@ export async function fetchProjects() {
     });
     if (!res.ok) {
       const errorData = await res.json();
+      console.error('API: fetchProjects error response:', errorData);
       throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
     }
     const data = await res.json();
@@ -30,7 +32,6 @@ export async function fetchProjects() {
 export async function createProject(title, description = '') {
   console.log('API: Sending createProject request with initData:', initData);
   try {
-    await delay(1000);
     const res = await fetch(`${API_BASE}/projects`, {
       method: 'POST',
       headers: {
@@ -41,6 +42,7 @@ export async function createProject(title, description = '') {
     });
     if (!res.ok) {
       const errorData = await res.json();
+      console.error('API: createProject error response:', errorData);
       throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
     }
     const data = await res.json();
@@ -55,7 +57,6 @@ export async function createProject(title, description = '') {
 export async function fetchTasks(projectId) {
   console.log('API: Sending fetchTasks request with initData:', initData);
   try {
-    await delay(1000);
     const res = await fetch(`${API_BASE}/projects/${projectId}/tasks`, {
       method: 'GET',
       headers: {
@@ -65,6 +66,7 @@ export async function fetchTasks(projectId) {
     });
     if (!res.ok) {
       const errorData = await res.json();
+      console.error('API: fetchTasks error response:', errorData);
       throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
     }
     const data = await res.json();
@@ -79,7 +81,6 @@ export async function fetchTasks(projectId) {
 export async function createTask(projectId, title, priority = 'medium', dueDate = null) {
   console.log('API: Sending createTask request with initData:', initData);
   try {
-    await delay(1000);
     const res = await fetch(`${API_BASE}/projects/${projectId}/tasks`, {
       method: 'POST',
       headers: {
@@ -90,6 +91,7 @@ export async function createTask(projectId, title, priority = 'medium', dueDate 
     });
     if (!res.ok) {
       const errorData = await res.json();
+      console.error('API: createTask error response:', errorData);
       throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
     }
     const data = await res.json();
@@ -101,58 +103,9 @@ export async function createTask(projectId, title, priority = 'medium', dueDate 
   }
 }
 
-export async function generateShareToken(projectId) {
-  console.log('API: Sending generateShareToken request with initData:', initData);
-  try {
-    await delay(1000);
-    const res = await fetch(`${API_BASE}/projects/share/${projectId}`, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-telegram-init-data': initData,
-      },
-    });
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
-    }
-    const data = await res.json();
-    console.log('API: generateShareToken response:', data);
-    return data;
-  } catch (error) {
-    console.error('API: Error generating share token:', error);
-    throw error;
-  }
-}
-
-export async function getProjectByToken(token) {
-  console.log('API: Sending getProjectByToken request with initData:', initData);
-  try {
-    await delay(1000);
-    const res = await fetch(`${API_BASE}/projects/shared/${token}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-telegram-init-data': initData,
-      },
-    });
-    if (!res.ok) {
-      const errorData = await res.json();
-      throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
-    }
-    const data = await res.json();
-    console.log('API: getProjectByToken response:', data);
-    return data;
-  } catch (error) {
-    console.error('API: Error fetching project by token:', error);
-    throw error;
-  }
-}
-
 export async function toggleTaskCompletion(taskId) {
   console.log('API: Sending toggleTaskCompletion request with initData:', initData);
   try {
-    await delay(1000);
     const res = await fetch(`${API_BASE}/tasks/${taskId}`, {
       method: 'PATCH',
       headers: {
@@ -163,6 +116,7 @@ export async function toggleTaskCompletion(taskId) {
     });
     if (!res.ok) {
       const errorData = await res.json();
+      console.error('API: toggleTaskCompletion error response:', errorData);
       throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
     }
     const data = await res.json();
@@ -170,6 +124,30 @@ export async function toggleTaskCompletion(taskId) {
     return data;
   } catch (error) {
     console.error('API: Error toggling task completion:', error);
+    throw error;
+  }
+}
+
+export async function getProjectByToken(token) {
+  console.log('API: Sending getProjectByToken request with initData:', initData);
+  try {
+    const res = await fetch(`${API_BASE}/projects/shared/${token}`, {
+      method: 'GET',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-telegram-init-data': initData,
+      },
+    });
+    if (!res.ok) {
+      const errorData = await res.json();
+      console.error('API: getProjectByToken error response:', errorData);
+      throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
+    }
+    const data = await res.json();
+    console.log('API: getProjectByToken response:', data);
+    return data;
+  } catch (error) {
+    console.error('API: Error fetching project by token:', error);
     throw error;
   }
 }

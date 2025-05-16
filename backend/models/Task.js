@@ -46,7 +46,6 @@ const taskSchema = new mongoose.Schema({
     }
 })
 
-// Update the updatedAt field before saving
 taskSchema.pre('save', function(next) {
     this.updatedAt = new Date();
     next();

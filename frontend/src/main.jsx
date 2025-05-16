@@ -7,7 +7,6 @@ const loadTelegramSDK = () => {
   return new Promise((resolve, reject) => {
     if (window.Telegram && window.Telegram.WebApp) {
       console.log('Telegram Web App SDK already loaded:', window.Telegram.WebApp);
-      console.log('SDK version:', window.Telegram.WebApp.version);
       resolve(window.Telegram.WebApp);
       return;
     }
@@ -18,7 +17,6 @@ const loadTelegramSDK = () => {
     script.onload = () => {
       if (window.Telegram && window.Telegram.WebApp) {
         console.log('Telegram Web App SDK loaded:', window.Telegram.WebApp);
-        console.log('SDK version:', window.Telegram.WebApp.version);
         resolve(window.Telegram.WebApp);
       } else {
         reject(new Error('Telegram Web App SDK failed to load'));
@@ -36,18 +34,11 @@ loadTelegramSDK()
     WebApp.expand();
     const initData = WebApp.initData || '';
     console.log('Telegram Web App: initialized, initData:', initData);
-    console.log('Telegram Web App: URL:', window.location.href);
-    console.log('Telegram Web App: is Telegram?', window.location.href.includes('tgWebAppData'));
-    console.log('Telegram Web App: Platform:', WebApp.platform);
-    console.log('Telegram Web App: Theme:', JSON.stringify(WebApp.themeParams));
-    console.log('Telegram Web App: Viewport:', WebApp.viewportHeight, WebApp.viewportStableHeight);
 
-    // Проверка рендеринга
     const root = document.getElementById('root');
-    console.log('Render: Root element exists?', !!root);
     if (!root) {
       console.error('Render: Root element not found');
-      document.body.innerHTML = '<div style="color: red; padding: 20px; text-align: center;">Error: Root element not found. Please check index.html.</div>';
+      document.body.innerHTML = '<div style="color: red; padding: 20px; text-align: center;">Error: Root element not found.</div>';
       return;
     }
 
@@ -62,7 +53,7 @@ loadTelegramSDK()
     console.error('Error loading Telegram Web App SDK:', err);
     document.body.innerHTML = `
       <div style="padding: 20px; color: red; text-align: center;">
-        Ошибка: Это приложение должно быть открыто в Telegram. Пожалуйста, используйте @test_4_web_app_bot.
+        Error: This app must be opened in Telegram.
         <pre style="text-align: left; margin-top: 10px; font-size: 12px; background: #f0f0f0; padding: 10px;">
           Debug Info:
           Error: ${err.message}

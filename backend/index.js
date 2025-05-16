@@ -4,8 +4,7 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import projectRoutes from './routes/projects.js';
 import taskRoutes from './routes/tasks.js';
-import Telegraf from 'telegraf'; // Убедись, что Telegraf импортирован правильно
-import axios from 'axios'; // Для установки webhook
+import bot from './config/telegram.js';
 
 dotenv.config();
 
@@ -20,14 +19,14 @@ app.get('/', (req, res) => {
   res.status(200).json({ message: 'Backend is running' });
 });
 
-// Webhook route для отладки (опционально)
-app.get('/webhook', (req, res) => {
-  res.status(200).json({ message: 'Webhook endpoint is active (GET is not used by Telegram)' });
-});
+// Routes
+app.use('/api/projects', projectRoutes);
+app.use('/api/tasks', taskRoutes);
 
-app.post('/webhook', async (req, res) => {
-  console.log('Webhook received:', req.body);
-  res.status(200).send('OK');
+// Error handling
+app.use((err, req, res, next) => {
+  console.error('Global error:', err);
+  res.status(500).json({ error: `Internal server error: ${err.message}` });
 });
 
 // Connect to MongoDB
@@ -44,51 +43,26 @@ mongoose
     process.exit(1);
   });
 
-// Routes
-app.use('/api/projects', projectRoutes);
-app.use('/api/tasks', taskRoutes);
-
-// Error handling middleware
-app.use((err, req, res, next) => {
-  console.error('Global error:', err);
-  res.status(500).json({ error: `Internal server error: ${err.message}` });
-});
-
-// Start server
+// Start server and bot
 const PORT = process.env.PORT || 3000;
-const bot = new Telegraf(process.env.BOT_TOKEN);
 
-const setWebhook = async () => {
+const startServer = async () => {
   try {
-    const webhookUrl = `https://to-do-1-ob6b.onrender.com/webhook`;
-    const response = await axios.get(
-      `https://api.telegram.org/bot${process.env.BOT_TOKEN}/setWebhook?url=${webhookUrl}`
-    );
-    console.log('Set Webhook Response:', response.data);
-  } catch (error) {
-    console.error('Error setting webhook:', error.response?.data || error.message);
+    // Start server
+    app.listen(PORT, () => {
+      console.log(`Server is running on port ${PORT}`);
+    });
+
+    // Start bot with long polling
+    await bot.launch();
+    console.log('Telegram bot started successfully with long polling');
+  } catch (err) {
+    console.error('Error starting server or bot:', err);
+    process.exit(1);
   }
 };
 
-app.listen(PORT, async () => {
-  console.log(`Server is running on port ${PORT}`);
-  await setWebhook(); // Установка webhook при старте
-  bot.launch({
-    webhook: {
-      domain: 'https://to-do-1-ob6b.onrender.com',
-      path: '/webhook',
-      port: PORT,
-    },
-    allowedUpdates: ['message', 'callback_query', 'web_app_data'],
-  })
-    .then(() => {
-      console.log('Telegram bot started successfully with webhook');
-    })
-    .catch(err => {
-      console.error('Error starting Telegram bot:', err);
-      process.exit(1);
-    });
-});
+startServer();
 
 process.once('SIGINT', () => {
   console.log('Stopping bot...');

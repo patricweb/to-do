@@ -1,116 +1,67 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { createProject } from '../api/api';
+import { showAlert } from '../utils/telegram';
+import { BackButton } from '@vkruglikov/react-telegram-web-app';
 
 const CreateProject = () => {
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    title: '',
-    description: ''
-  });
-  const [error, setError] = useState(null);
+  const [title, setTitle] = useState('');
+  const [description, setDescription] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-
+    if (!title.trim()) {
+      showAlert('Please enter a project title');
+      return;
+    }
+    setIsSubmitting(true);
     try {
-      const initData = window.Telegram?.WebApp?.initData || '';
-      console.log('CreateProject: Sending request with initData:', initData);
-      console.log('CreateProject: Form data:', formData);
-
-      const response = await fetch('https://to-do-1-ob6b.onrender.com/api/projects', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'x-telegram-init-data': initData,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      const responseText = await response.text();
-      console.log('CreateProject: Response status:', response.status);
-      console.log('CreateProject: Response text:', responseText);
-
-      if (!response.ok) {
-        try {
-          const errorData = JSON.parse(responseText);
-          throw new Error(errorData.error || 'Failed to create project');
-        } catch {
-          throw new Error(`Failed to create project: ${response.status} ${responseText}`);
-        }
-      }
-
-      navigate('/');
-    } catch (err) {
-      console.error('CreateProject: Error:', err);
-      setError(err.message);
+      const project = await createProject(title, description);
+      console.log('CreateProject: Project created:', project);
+      showAlert('Project created successfully!');
+      navigate(`/project/${project._id}`);
+    } catch (error) {
+      console.error('CreateProject: Error creating project:', error);
+      showAlert(`Failed to create project: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
   return (
-    <div className="max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Новый проект</h2>
-
-      {error && (
-        <div className="bg-red-50 p-4 rounded-lg mb-6">
-          <p className="text-red-600">{error}</p>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="p-4">
+      <BackButton onClick={() => navigate('/')} />
+      <h2 className="text-xl font-bold mb-4">Create New Project</h2>
+      <div className="space-y-4">
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-            Название проекта
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Title</label>
           <input
             type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-            className="input-field mt-1"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="mt-1 block w-full border rounded p-2"
+            placeholder="Project title"
           />
         </div>
-
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-            Описание
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Description</label>
           <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            rows={3}
-            className="input-field mt-1"
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+            className="mt-1 block w-full border rounded p-2"
+            placeholder="Project description"
           />
         </div>
-
-        <div className="flex space-x-4">
-          <button
-            type="button"
-            onClick={() => navigate('/')}
-            className="btn-secondary"
-          >
-            Отмена
-          </button>
-          <button
-            type="submit"
-            className="btn-primary"
-          >
-            Создать проект
-          </button>
-        </div>
-      </form>
+        <button
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className={`w-full bg-blue-500 text-white px-4 py-2 rounded ${isSubmitting ? 'opacity-50' : ''}`}
+        >
+          {isSubmitting ? 'Creating...' : 'Create Project'}
+        </button>
+      </div>
     </div>
   );
 };

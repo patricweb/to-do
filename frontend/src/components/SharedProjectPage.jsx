@@ -1,11 +1,11 @@
 import { useParams } from 'react-router-dom';
 import { useEffect, useState } from 'react';
-import { BackButton } from '@vkruglikov/react-telegram-web-app';
+import { getProjectByToken } from '../api/api';
 import { showAlert } from '../utils/telegram';
-import axios from 'axios';
+import { BackButton } from '@vkruglikov/react-telegram-web-app';
 import TaskManager from './TaskManager';
 
-const SharedProjectPage = ({ user }) => {
+const SharedProjectPage = () => {
   const { token } = useParams();
   const [project, setProject] = useState(null);
   const [isLoading, setIsLoading] = useState(true);
@@ -13,28 +13,25 @@ const SharedProjectPage = ({ user }) => {
   useEffect(() => {
     const fetchProject = async () => {
       try {
-        const response = await axios.get(`/api/projects/shared/${token}`, {
-          headers: {
-            'x-telegram-init-data': window.Telegram.WebApp.initData
-          }
-        });
-        setProject(response.data);
+        const response = await getProjectByToken(token);
+        console.log('SharedProjectPage: Loaded project:', response);
+        setProject(response);
       } catch (error) {
+        console.error('SharedProjectPage: Error accessing shared project:', error);
         showAlert('Error accessing shared project: ' + error.message);
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchProject();
   }, [token]);
 
   if (isLoading) {
-    return <div>Loading shared project...</div>;
+    return <div className="text-center">Loading shared project...</div>;
   }
 
   if (!project) {
-    return <div>Project not found</div>;
+    return <div className="text-center">Project not found</div>;
   }
 
   return (

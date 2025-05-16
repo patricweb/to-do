@@ -1,4 +1,5 @@
 import crypto from 'crypto';
+import User from '../models/User.js';
 
 const validateTelegramWebAppData = (telegramInitData, botToken) => {
   console.log('validateTelegramWebAppData: telegramInitData:', telegramInitData);
@@ -26,7 +27,7 @@ const validateTelegramWebAppData = (telegramInitData, botToken) => {
   return hash === telegramInitData.hash;
 };
 
-export const telegramAuthMiddleware = (req, res, next) => {
+export const telegramAuthMiddleware = async (req, res, next) => {
   try {
     const initData = req.headers['x-telegram-init-data'];
     console.log('telegramAuthMiddleware: Request URL:', req.url);
@@ -40,7 +41,8 @@ export const telegramAuthMiddleware = (req, res, next) => {
           id: 'test-user-id',
           username: 'test-user',
           first_name: 'Test',
-          last_name: 'User'
+          last_name: 'User',
+          _id: 'test-user-object-id'
         };
         return next();
       }
@@ -64,7 +66,20 @@ export const telegramAuthMiddleware = (req, res, next) => {
       return res.status(401).json({ error: 'Invalid Telegram data' });
     }
 
-    req.telegramUser = JSON.parse(parsedInitData.user);
+    const telegramUser = JSON.parse(parsedInitData.user);
+    const user = await User.findOneAndUpdate(
+      { telegramId: telegramUser.id },
+      {
+        telegramId: telegramUser.id,
+        username: telegramUser.username,
+        firstName: telegramUser.first_name,
+        lastName: telegramUser.last_name,
+        photoUrl: telegramUser.photo_url,
+        lastActive: new Date()
+      },
+      { upsert: true, new: true }
+    );
+    req.telegramUser = { ...telegramUser, _id: user._id };
     console.log('telegramAuthMiddleware: telegramUser:', req.telegramUser);
     next();
   } catch (error) {

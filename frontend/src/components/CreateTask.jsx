@@ -1,128 +1,81 @@
-import React, { useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useState } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { createTask } from '../api/api';
+import { showAlert } from '../utils/telegram';
+import { BackButton } from '@vkruglikov/react-telegram-web-app';
 
 const CreateTask = () => {
   const { id } = useParams();
   const navigate = useNavigate();
-  const [formData, setFormData] = useState({
-    title: '',
-    description: '',
-    priority: 'medium',
-    dueDate: ''
-  });
-  const [error, setError] = useState(null);
+  const [title, setTitle] = useState('');
+  const [priority, setPriority] = useState('medium');
+  const [dueDate, setDueDate] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError(null);
-
+    if (!title.trim()) {
+      showAlert('Please enter a task title');
+      return;
+    }
+    setIsSubmitting(true);
     try {
-      const dueDate = formData.dueDate ? new Date(formData.dueDate).toISOString() : null;
-      console.log('CreateTask: Sending task:', { ...formData, dueDate, projectId: id });
-      await createTask(id, formData.title, formData.priority, dueDate);
+      const task = await createTask(id, title, priority, dueDate || null);
+      console.log('CreateTask: Task created:', task);
+      showAlert('Task created successfully!');
       navigate(`/project/${id}`);
-    } catch (err) {
-      console.error('CreateTask: Error:', err);
-      setError(err.message);
+    } catch (error) {
+      console.error('CreateTask: Error creating task:', error);
+      showAlert(`Failed to create task: ${error.message}`);
+    } finally {
+      setIsSubmitting(false);
     }
   };
 
-  const handleChange = (e) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
   return (
-    <div className="max-w-2xl mx-auto">
-      <h2 className="text-2xl font-bold text-gray-800 mb-6">Новая задача</h2>
-
-      {error && (
-        <div className="bg-red-50 p-4 rounded-lg mb-6">
-          <p className="text-red-600">{error}</p>
-        </div>
-      )}
-
-      <form onSubmit={handleSubmit} className="space-y-6">
+    <div className="p-4">
+      <BackButton onClick={() => navigate(`/project/${id}`)} />
+      <h2 className="text-xl font-bold mb-4">Create New Task</h2>
+      <div className="space-y-4">
         <div>
-          <label htmlFor="title" className="block text-sm font-medium text-gray-700">
-            Название задачи
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Title</label>
           <input
             type="text"
-            id="title"
-            name="title"
-            value={formData.title}
-            onChange={handleChange}
-            required
-            className="input-field mt-1"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className="mt-1 block w-full border rounded p-2"
+            placeholder="Task title"
           />
         </div>
-
         <div>
-          <label htmlFor="description" className="block text-sm font-medium text-gray-700">
-            Описание
-          </label>
-          <textarea
-            id="description"
-            name="description"
-            value={formData.description}
-            onChange={handleChange}
-            rows={3}
-            className="input-field mt-1"
-          />
-        </div>
-
-        <div>
-          <label htmlFor="priority" className="block text-sm font-medium text-gray-700">
-            Приоритет
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Priority</label>
           <select
-            id="priority"
-            name="priority"
-            value={formData.priority}
-            onChange={handleChange}
-            className="input-field mt-1"
+            value={priority}
+            onChange={(e) => setPriority(e.target.value)}
+            className="mt-1 block w-full border rounded p-2"
           >
-            <option value="high">Высокий</option>
-            <option value="medium">Средний</option>
-            <option value="low">Низкий</option>
+            <option value="high">High</option>
+            <option value="medium">Medium</option>
+            <option value="low">Low</option>
           </select>
         </div>
-
         <div>
-          <label htmlFor="dueDate" className="block text-sm font-medium text-gray-700">
-            Срок выполнения
-          </label>
+          <label className="block text-sm font-medium text-gray-700">Due Date</label>
           <input
-            type="datetime-local"
-            id="dueDate"
-            name="dueDate"
-            value={formData.dueDate}
-            onChange={handleChange}
-            className="input-field mt-1"
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+            className="mt-1 block w-full border rounded p-2"
           />
         </div>
-
-        <div className="flex space-x-4">
-          <button
-            type="button"
-            onClick={() => navigate(`/project/${id}`)}
-            className="btn-secondary"
-          >
-            Отмена
-          </button>
-          <button
-            type="submit"
-            className="btn-primary"
-          >
-            Создать задачу
-          </button>
-        </div>
-      </form>
+        <button
+          onClick={handleSubmit}
+          disabled={isSubmitting}
+          className={`w-full bg-blue-500 text-white px-4 py-2 rounded ${isSubmitting ? 'opacity-50' : ''}`}
+        >
+          {isSubmitting ? 'Creating...' : 'Create Task'}
+        </button>
+      </div>
     </div>
   );
 };

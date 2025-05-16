@@ -1,13 +1,12 @@
 export const initTelegramApp = () => {
   if (window.Telegram && window.Telegram.WebApp) {
-    // Enable viewport settings for mobile devices
     window.Telegram.WebApp.setHeaderColor('#2AABEE');
     window.Telegram.WebApp.expand();
-    
-    // Get user data from Telegram
     const user = window.Telegram.WebApp.initDataUnsafe?.user;
+    console.log('initTelegramApp: User data:', user);
     return user;
   }
+  console.warn('initTelegramApp: Telegram Web App not available');
   return null;
 };
 
@@ -41,7 +40,6 @@ export const showConfirm = (message) => {
   return Promise.resolve(window.confirm(message));
 };
 
-// Get theme params
 export const getTelegramTheme = () => {
   if (window.Telegram && window.Telegram.WebApp) {
     return window.Telegram.WebApp.themeParams;
@@ -49,7 +47,6 @@ export const getTelegramTheme = () => {
   return null;
 };
 
-// Check if app is running in Telegram
 export const isTelegramWebApp = () => {
   return window.Telegram && window.Telegram.WebApp && window.Telegram.WebApp.platform !== undefined;
-}; 
+};

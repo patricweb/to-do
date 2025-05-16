@@ -2,7 +2,7 @@ import mongoose from 'mongoose';
 
 const userSchema = new mongoose.Schema({
   telegramId: {
-    type: Number,
+    type: String, 
     required: true,
     unique: true
   },
@@ -31,10 +31,9 @@ const userSchema = new mongoose.Schema({
   }
 });
 
-// Update lastActive field before saving
 userSchema.pre('save', function(next) {
   this.lastActive = new Date();
   next();
 });
 
-export default mongoose.model('User', userSchema); 
+export default mongoose.model('User', userSchema);

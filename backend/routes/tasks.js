@@ -10,7 +10,7 @@ const router = express.Router();
 router.get('/projects/:projectId/tasks', telegramAuthMiddleware, async (req, res) => {
   try {
     console.log('GET /projects/:projectId/tasks: Project ID:', req.params.projectId);
-    console.log('GET /projects/:projectId/tasks: User ID:', req.telegramUser.id);
+    console.log('GET /projects/:projectId/tasks: User ID:', req.telegramUser._id);
     if (!mongoose.Types.ObjectId.isValid(req.params.projectId)) {
       console.log('GET /projects/:projectId/tasks: Invalid project ID');
       return res.status(400).json({ error: 'Invalid project ID' });
@@ -19,19 +19,13 @@ router.get('/projects/:projectId/tasks', telegramAuthMiddleware, async (req, res
     const project = await Project.findOne({
       _id: req.params.projectId,
       $or: [
-        { creator: req.telegramUser.id },
-        { members: req.telegramUser.id }
+        { creator: req.telegramUser._id },
+        { members: req.telegramUser._id }
       ]
     });
     
     if (!project) {
       console.log('GET /projects/:projectId/tasks: Project not found');
-      const projectExists = await Project.findById(req.params.projectId);
-      console.log('GET /projects/:projectId/tasks: Project exists?', !!projectExists);
-      if (projectExists) {
-        console.log('GET /projects/:projectId/tasks: Creator:', projectExists.creator);
-        console.log('GET /projects/:projectId/tasks: Members:', projectExists.members);
-      }
       return res.status(404).json({ error: 'Project not found or access denied' });
     }
     
@@ -49,7 +43,7 @@ router.post('/projects/:projectId/tasks', telegramAuthMiddleware, async (req, re
   try {
     console.log('POST /projects/:projectId/tasks: Project ID:', req.params.projectId);
     console.log('POST /projects/:projectId/tasks: Request body:', req.body);
-    console.log('POST /projects/:projectId/tasks: User ID:', req.telegramUser.id);
+    console.log('POST /projects/:projectId/tasks: User ID:', req.telegramUser._id);
     if (!mongoose.Types.ObjectId.isValid(req.params.projectId)) {
       console.log('POST /projects/:projectId/tasks: Invalid project ID');
       return res.status(400).json({ error: 'Invalid project ID' });
@@ -58,8 +52,8 @@ router.post('/projects/:projectId/tasks', telegramAuthMiddleware, async (req, re
     const project = await Project.findOne({
       _id: req.params.projectId,
       $or: [
-        { creator: req.telegramUser.id },
-        { members: req.telegramUser.id }
+        { creator: req.telegramUser._id },
+        { members: req.telegramUser._id }
       ]
     });
     
@@ -71,7 +65,7 @@ router.post('/projects/:projectId/tasks', telegramAuthMiddleware, async (req, re
     const task = new Task({
       ...req.body,
       project: project._id,
-      createdBy: req.telegramUser.id
+      createdBy: req.telegramUser._id
     });
     await task.save();
     console.log('POST /projects/:projectId/tasks: Task created:', task);
@@ -86,7 +80,7 @@ router.post('/projects/:projectId/tasks', telegramAuthMiddleware, async (req, re
 router.patch('/:id', telegramAuthMiddleware, async (req, res) => {
   try {
     console.log('PATCH /tasks/:id: Task ID:', req.params.id);
-    console.log('PATCH /tasks/:id: User ID:', req.telegramUser.id);
+    console.log('PATCH /tasks/:id: User ID:', req.telegramUser._id);
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       console.log('PATCH /tasks/:id: Invalid task ID');
       return res.status(400).json({ error: 'Invalid task ID' });
@@ -102,8 +96,8 @@ router.patch('/:id', telegramAuthMiddleware, async (req, res) => {
     const project = await Project.findOne({
       _id: task.project,
       $or: [
-        { creator: req.telegramUser.id },
-        { members: req.telegramUser.id }
+        { creator: req.telegramUser._id },
+        { members: req.telegramUser._id }
       ]
     });
     
@@ -113,7 +107,7 @@ router.patch('/:id', telegramAuthMiddleware, async (req, res) => {
     }
     
     if (req.body.completed !== undefined && req.body.completed !== task.completed) {
-      req.body.completedBy = req.body.completed ? req.telegramUser.id : null;
+      req.body.completedBy = req.body.completed ? req.telegramUser._id : null;
     }
     
     Object.assign(task, req.body);
@@ -130,7 +124,7 @@ router.patch('/:id', telegramAuthMiddleware, async (req, res) => {
 router.delete('/:id', telegramAuthMiddleware, async (req, res) => {
   try {
     console.log('DELETE /tasks/:id: Task ID:', req.params.id);
-    console.log('DELETE /tasks/:id: User ID:', req.telegramUser.id);
+    console.log('DELETE /tasks/:id: User ID:', req.telegramUser._id);
     if (!mongoose.Types.ObjectId.isValid(req.params.id)) {
       console.log('DELETE /tasks/:id: Invalid task ID');
       return res.status(400).json({ error: 'Invalid task ID' });
@@ -145,7 +139,7 @@ router.delete('/:id', telegramAuthMiddleware, async (req, res) => {
     
     const project = await Project.findOne({
       _id: task.project,
-      creator: req.telegramUser.id
+      creator: req.telegramUser._id
     });
     
     if (!project) {

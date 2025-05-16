@@ -9,11 +9,11 @@ const router = express.Router();
 // Get all projects for the current user
 router.get('/', telegramAuthMiddleware, async (req, res) => {
   try {
-    console.log('GET /projects: User ID:', req.telegramUser.id);
+    console.log('GET /projects: User ID:', req.telegramUser._id);
     const projects = await Project.find({
       $or: [
-        { creator: req.telegramUser.id },
-        { members: req.telegramUser.id }
+        { creator: req.telegramUser._id },
+        { members: req.telegramUser._id }
       ]
     });
     console.log('GET /projects: Found projects:', projects);
@@ -32,7 +32,7 @@ router.post('/', telegramAuthMiddleware, async (req, res) => {
     const project = new Project({
       title: req.body.title,
       description: req.body.description,
-      creator: req.telegramUser.id,
+      creator: req.telegramUser._id,
       shareToken: nanoid(10)
     });
     await project.save();
@@ -51,8 +51,8 @@ router.get('/:id', telegramAuthMiddleware, async (req, res) => {
     const project = await Project.findOne({
       _id: req.params.id,
       $or: [
-        { creator: req.telegramUser.id },
-        { members: req.telegramUser.id }
+        { creator: req.telegramUser._id },
+        { members: req.telegramUser._id }
       ]
     });
     
@@ -75,7 +75,7 @@ router.patch('/:id', telegramAuthMiddleware, async (req, res) => {
     console.log('PATCH /projects/:id: Project ID:', req.params.id);
     const project = await Project.findOne({
       _id: req.params.id,
-      creator: req.telegramUser.id
+      creator: req.telegramUser._id
     });
     
     if (!project) {
@@ -99,7 +99,7 @@ router.delete('/:id', telegramAuthMiddleware, async (req, res) => {
     console.log('DELETE /projects/:id: Project ID:', req.params.id);
     const project = await Project.findOne({
       _id: req.params.id,
-      creator: req.telegramUser.id
+      creator: req.telegramUser._id
     });
     
     if (!project) {
@@ -128,8 +128,8 @@ router.get('/shared/:token', telegramAuthMiddleware, async (req, res) => {
       return res.status(404).json({ error: 'Project not found' });
     }
     
-    if (!project.members.includes(req.telegramUser.id)) {
-      project.members.push(req.telegramUser.id);
+    if (!project.members.includes(req.telegramUser._id)) {
+      project.members.push(req.telegramUser._id);
       await project.save();
       console.log('GET /shared/:token: User added to members');
     }
