@@ -1,4 +1,4 @@
-const API_BASE = 'https://to-do-1-ob6b.onrender.com/api';
+const API_BASE = 'https://to-do-back-hv8e.onrender.com/api';
 const initData = window.Telegram?.WebApp?.initData || '';
 
 if (!initData) {
@@ -16,7 +16,7 @@ export async function fetchProjects() {
       },
     });
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await res.json().catch(() => ({}));
       console.error('API: fetchProjects error response:', errorData);
       throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
     }
@@ -41,7 +41,7 @@ export async function createProject(title, description = '') {
       body: JSON.stringify({ title, description }),
     });
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await res.json().catch(() => ({}));
       console.error('API: createProject error response:', errorData);
       throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
     }
@@ -65,7 +65,7 @@ export async function fetchTasks(projectId) {
       },
     });
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await res.json().catch(() => ({}));
       console.error('API: fetchTasks error response:', errorData);
       throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
     }
@@ -90,7 +90,7 @@ export async function createTask(projectId, title, priority = 'medium', dueDate 
       body: JSON.stringify({ title, priority, dueDate }),
     });
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await res.json().catch(() => ({}));
       console.error('API: createTask error response:', errorData);
       throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
     }
@@ -115,7 +115,7 @@ export async function toggleTaskCompletion(taskId) {
       body: JSON.stringify({ completed: true }),
     });
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await res.json().catch(() => ({}));
       console.error('API: toggleTaskCompletion error response:', errorData);
       throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
     }
@@ -139,7 +139,7 @@ export async function getProjectByToken(token) {
       },
     });
     if (!res.ok) {
-      const errorData = await res.json();
+      const errorData = await res.json().catch(() => ({}));
       console.error('API: getProjectByToken error response:', errorData);
       throw new Error(`HTTP error! Status: ${res.status}, Message: ${errorData.error || 'Unknown'}`);
     }
